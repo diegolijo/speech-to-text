@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="0.0.13">
+    <name>Cordova Vosk Speech to Text plugin</name>
+    <description></description>
+    <license>MIT</license>
+    <keywords>speech to text, Vosk</keywords>
+    <repo>https://github.com/diegolijo/speech-to-text.git</repo>
+    <engines>
+        <engine name="cordova-android" version=">=10.0.0" />
+    </engines>
+    <!-- android -->
+    <platform name="android">
+        <js-module src="www/speech-to-text.js" name="SpeechToText">
+            <runs/>
+            <clobbers target="cordova.plugins.SpeechToText" />
+        </js-module>
+
+        <framework src="src/models" target-dir="/models" custom="true" type="projectReference" />
+        <framework src="net.java.dev.jna:jna:5.8.0@aar" />
+        <framework src="com.alphacephei:vosk-android:0.3.32" />
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="SpeechToText">
+                <param name="android-package" value="com.vayapedal.speechtotext.SpeechToText" />
+                <param name="onload" value="true" />
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
+            <uses-permission android:name="android.permission.VIBRATE" />
+        </config-file>
+
+        <source-file src="src/android/SpeechToText.java" target-dir="src/com/vayapedal/speechtotext" />
+
+    </platform>
+</plugin>

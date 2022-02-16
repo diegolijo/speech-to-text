@@ -96,7 +96,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         return true;
     }
 
-
     /**
      * Called when the system is about to start resuming a previous activity.
      *
@@ -169,27 +168,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         LOG.i("vosk", "onTimeout");
     }
 
-/*    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions, @NonNull int[] grantResults) {
-        try {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        } catch (JSONException e) {
-            LOG.e("onRequestPermissionsResult", e.getMessage());
-        }
-
-        if (requestCode == PERMISSIONS_REQUEST_RECORD_AUDIO) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Recognizer initialization is a time-consuming and it involves IO,
-                // so we execute it in async task
-                initModel();
-            } else {
-                this.cordova.getActivity().finish();
-            }
-        }
-    }*/
-
-
     private void initRecognizer() {
         if (!hasPermisssion()) {
             requestPermissions(0);
@@ -197,7 +175,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
             initModel();
         }
     }
-
 
     /**
      * check application's permissions

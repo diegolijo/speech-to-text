@@ -1,0 +1,6 @@
+buildscript {
+dependencies {
+    compile files('app/src/com/vayapedal/libs/na-5.8.0.aar')
+    compile files('app/src/com/vayapedal/libs/vosk-android-0.3.32.aa')
+    }
+}

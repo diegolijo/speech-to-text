@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="0.0.18">
+    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="0.0.20">
     <name>Cordova Vosk Speech to Text plugin</name>
     <description></description>
     <license>MIT</license>
@@ -17,10 +17,10 @@
         </js-module>
 
         <framework src="src/models" target-dir="/models" custom="true" type="projectReference" />
-        <framework src="src/lib/vosk-android-0.3.32.aar" />
-        <framework src="src/lib/jna-5.8.0.aar" />
-        <!-- <framework src="net.java.dev.jna:jna:5.8.0@aar" />
-        <framework src="com.alphacephei:vosk-android:0.3.32" /> -->
+        <framework src="net.java.dev.jna:jna:5.8.0@aar" />
+        <framework src="com.alphacephei:vosk-android:0.3.32" />
+        <!-- TODO local libs     <framework src="src/android/build.gradle" custom="true" type="gradleReference" /> -->
+
 
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SpeechToText">
@@ -35,6 +35,8 @@
         </config-file>
 
         <source-file src="src/android/SpeechToText.java" target-dir="src/com/vayapedal/speechtotext" />
+        <!--    TODO   local libs    <source-file src="src/lib/vosk-android-0.3.32.aar" target-dir="src/com/vayapedal/libs/vosk-android-0.3.32.aar" />
+        <source-file src="src/lib/jna-5.8.0.aar" target-dir="src/com/vayapedal/libs/na-5.8.0.aar" /> -->
 
     </platform>
 </plugin>

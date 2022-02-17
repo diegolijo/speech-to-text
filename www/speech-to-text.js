@@ -2,8 +2,8 @@ var exec = require('cordova/exec');
 
 var PLUGIN_NAME = 'SpeechToText';
 
-var SpeechToText = { //TODO idioma
-  enable: function (idioma, cb, error) {
+var SpeechToText = { 
+  enable: function ( cb, error) {
     exec(cb, error, PLUGIN_NAME, 'enable', [idioma]);
   },
   start: function ( cb, error) {

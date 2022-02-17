@@ -1,18 +1,14 @@
-/**
- * Diego Santiago 14-02-2022
- */
+/*   Diego Santiago 16-02-2022    */
+
+
 package com.vayapedal.speechtotext;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import java.io.IOException;
-
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -24,6 +20,7 @@ import org.apache.cordova.PermissionHelper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.vosk.Model;
 import org.vosk.Recognizer;
 import org.vosk.android.RecognitionListener;
@@ -32,221 +29,303 @@ import org.vosk.android.StorageService;
 
 public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
-    /* Used to handle permission request */
-    private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
-    private Model model;
-    private SpeechService speechService;
+  /* Used to handle permission request */
+  private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 0;
+  private Model model;
+  private SpeechService speechService;
 
-    private String[] permissions = {Manifest.permission.RECORD_AUDIO};
-    private JSONArray requestArgs;
-    private CallbackContext callbackContext;
+  public static String EVENT_RESULT = "speech-result";
+  public static String EVENT_PARTIAL = "speech-partial-result";
 
 
-    /**
-     * Called after plugin construction and fields have been initialized.
-     * Prefer to use pluginInitialize instead since there is no value in
-     * having parameters on the initialize() function.
-     *
-     * @param cordova
-     * @param webView
-     */
-    @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
-    }
+  private final String[] permissions = {Manifest.permission.RECORD_AUDIO};
+  private CallbackContext callbackEnableContext;
+  private CallbackContext callbackStartContext;
 
-    /**
-     * Called after plugin construction and fields have been initialized.
-     */
-    @Override
-    protected void pluginInitialize() {
-        super.pluginInitialize();
-    }
 
-    /**
-     * Executes the request.
-     * <p>
-     * This method is called from the WebView thread. To do a non-trivial amount of work, use:
-     * cordova.getThreadPool().execute(runnable);
-     * <p>
-     * To run on the UI thread, use:
-     * cordova.getActivity().runOnUiThread(runnable);
-     *
-     * @param action          The action to execute.
-     * @param args            The exec() arguments.
-     * @param callbackContext The callback context used when calling back into JavaScript.
-     * @return Whether the action was valid.
-     */
-    @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        if (action.equalsIgnoreCase("enable")) {
-            cordova.getThreadPool().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        initRecognizer();
-                        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "fiesta!!!!!"));
-                    } catch (Exception e) {
-                        LOG.e("execute.enable", e.getMessage());
-                        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, e.getMessage()));
-                    }
-                }
-            });
+  /**
+   * Called after plugin construction and fields have been initialized.
+   * Prefer to use pluginInitialize instead since there is no value in
+   * having parameters on the initialize() function.
+   */
+  @Override
+  public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+    super.initialize(cordova, webView);
+  }
+
+  /**
+   * Called after plugin construction and fields have been initialized.
+   */
+  @Override
+  protected void pluginInitialize() {
+    super.pluginInitialize();
+  }
+
+  /**
+   * Executes the request.
+   * <p>
+   * This method is called from the WebView thread. To do a non-trivial amount of work, use:
+   * cordova.getThreadPool().execute(runnable);
+   * <p>
+   * To run on the UI thread, use:
+   * cordova.getActivity().runOnUiThread(runnable);
+   *
+   * @param action          The action to execute.
+   * @param args            The exec() arguments.
+   * @param callbackContext The callback context used when calling back into JavaScript.
+   * @return Whether the action was valid.
+   */
+  @Override
+  public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+
+    if (action.equalsIgnoreCase("enable")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          initRecognizer();
+          this.callbackEnableContext = callbackContext;
+
+        } catch (Exception e) {
+          LOG.e("execute.enable", e.getMessage());
+          serdError("execute.enable", e);
         }
-        return true;
+      });
     }
-
-    /**
-     * Called when the system is about to start resuming a previous activity.
-     *
-     * @param multitasking Flag indicating if multitasking is turned on for app
-     */
-    @Override
-    public void onPause(boolean multitasking) {
-        super.onPause(multitasking);
-    }
-
-    /**
-     * Called when the activity will start interacting with the user.
-     *
-     * @param multitasking Flag indicating if multitasking is turned on for app
-     */
-    @Override
-    public void onResume(boolean multitasking) {
-        super.onResume(multitasking);
-    }
-
-    /**
-     * Called when the activity is becoming visible to the user.
-     */
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    /**
-     * Called when the activity is no longer visible to the user.
-     */
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-    /**
-     * The final call you receive before your activity is destroyed.
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    //************************************ VOSK ***************************************
-
-
-    @Override
-    public void onPartialResult(String hypothesis) {
-        LOG.i("onPartialResult", hypothesis);
-    }
-
-    @Override
-    public void onResult(String hypothesis) {
-        LOG.i("onResult", hypothesis);
-    }
-
-    @Override
-    public void onFinalResult(String hypothesis) {
-        LOG.i("onFinalResult", hypothesis);
-    }
-
-    @Override
-    public void onError(Exception exception) {
-        LOG.e("onError", exception.getMessage());
-    }
-
-    @Override
-    public void onTimeout() {
-        LOG.i("vosk", "onTimeout");
-    }
-
-    private void initRecognizer() {
-        if (!hasPermisssion()) {
-            requestPermissions(0);
-        } else {
-            initModel();
+    if (action.equalsIgnoreCase("start")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          startRecognizer();
+          this.callbackStartContext = callbackContext;
+        } catch (Exception e) {
+          LOG.e("execute.start", e.getMessage());
+          serdError("execute.start", e);
         }
+      });
     }
-
-    /**
-     * check application's permissions
-     */
-    public boolean hasPermisssion() {
-        for (String p : permissions) {
-            if (!PermissionHelper.hasPermission(this, p)) {
-                return false;
-            }
+    if (action.equalsIgnoreCase("stop")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          stopRecognizer();
+        } catch (Exception e) {
+          LOG.e("execute.stop", e.getMessage());
+          serdError("execute.stop", e);
         }
-        return true;
+      });
     }
+    return true;
+  }
 
-    /**
-     * We override this so that we can access the permissions variable, which no longer exists in
-     * the parent class, since we can't initialize it reliably in the constructor!
-     *
-     * @param requestCode The code to get request action
-     */
-    public void requestPermissions(int requestCode) {
-        PermissionHelper.requestPermissions(this, requestCode, permissions);
+  // ****************************** APP EVENTOS *********************************
+
+  /**
+   * Called when the system is about to start resuming a previous activity.
+   *
+   * @param multitasking Flag indicating if multitasking is turned on for app
+   */
+  @Override
+  public void onPause(boolean multitasking) {
+    super.onPause(multitasking);
+  }
+
+  /**
+   * Called when the activity will start interacting with the user.
+   *
+   * @param multitasking Flag indicating if multitasking is turned on for app
+   */
+  @Override
+  public void onResume(boolean multitasking) {
+    super.onResume(multitasking);
+  }
+
+  /**
+   * Called when the activity is becoming visible to the user.
+   */
+  @Override
+  public void onStart() {
+    super.onStart();
+  }
+
+  /**
+   * Called when the activity is no longer visible to the user.
+   */
+  @Override
+  public void onStop() {
+    super.onStop();
+  }
+
+  /**
+   * The final call you receive before your activity is destroyed.
+   */
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+  }
+
+  //******************************** Recognizer ***************************************
+
+
+  private void initRecognizer() {
+    if (!hasPermisssion()) {
+      requestPermissions(PERMISSIONS_REQUEST_RECORD_AUDIO);
+    } else {
+      initModel();
     }
+  }
 
-    /**
-     * processes the result of permission request
-     *
-     * @param requestCode  The code to get request action
-     * @param permissions  The collection of permissions
-     * @param grantResults The result of grant
-     */
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) throws JSONException {
-        PluginResult result;
-        for (int r : grantResults) {
-            if (r == PackageManager.PERMISSION_DENIED) {
-                LOG.e("Failed to unpack the model", "Permission Denied!");
-                result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-                this.callbackContext.sendPluginResult(result);
-                return;
-            }
+  private void initModel() {
+    StorageService.unpack(this.cordova.getContext(), "model-small-es", "model",
+      (model) -> {
+        this.model = model;
+        try {
+          initRecognize();
+        } catch (JSONException e) {
+          serdError("initRecognize", e);
+          e.printStackTrace();
         }
+      },
+      (exception) -> LOG.e("Failed to unpack the model", exception.getMessage()));
+  }
 
-        switch (requestCode) {
-            case 0:
-                initModel();
-                break;
-        }
+  private void initRecognize() throws JSONException {
+    if (speechService != null) {
+      speechService.stop();
+      speechService = null;
+      this.callbackEnableContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
+        getJson("recognize", "off")));
+    } else {
+      try {
+        Recognizer rec = new Recognizer(model, 16000.0f);
+        speechService = new SpeechService(rec, 16000.0f);
+        this.callbackEnableContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
+          getJson("recognize", "on")));
+      } catch (IOException | JSONException e) {
+        LOG.e("initRecognize", e.getMessage());
+      }
     }
+  }
 
-
-    private void initModel() {
-        StorageService.unpack(this.cordova.getContext(), "model-small-es", "model",
-                (model) -> {
-                    this.model = model;
-                    recognizeMicrophone();
-                },
-                (exception) -> LOG.e("Failed to unpack the model", exception.getMessage()));
+  private void startRecognizer() throws JSONException {
+    if (speechService != null) {
+      speechService.startListening(this);
     }
+  }
 
-    private void recognizeMicrophone() {
-        if (speechService != null) {
-            speechService.stop();
-            speechService = null;
-        } else {
-            try {
-                Recognizer rec = new Recognizer(model, 16000.0f);
-                speechService = new SpeechService(rec, 16000.0f);
-                speechService.startListening(this);
-            } catch (IOException e) {
-                LOG.e("recognizeMicrophone", e.getMessage());
-            }
-        }
+  private void stopRecognizer() throws JSONException {
+    if (speechService != null) {
+      speechService.stop();
     }
+  }
 
+
+  @NonNull
+  private JSONObject getJson(String action, String result) throws JSONException {
+    JSONObject obj = new JSONObject();
+    obj.put("action", action);
+    obj.put("result", result);
+    return obj;
+  }
+
+
+  private void serdError(String tag, @NonNull Exception e) {
+    this.callbackEnableContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, tag + e.getMessage()));
+  }
+
+
+  // ******************************** EVENTOS VOSK **************************************
+
+
+  @Override
+  public void onPartialResult(String hypothesis) {
+    try {
+      JSONObject jsonObject = new JSONObject(hypothesis);
+      if (!jsonObject.get("partial").toString().equalsIgnoreCase("")) {
+        PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
+        result.setKeepCallback(true);
+        this.callbackStartContext.sendPluginResult(result);
+      }
+    } catch (JSONException e) {
+      serdError("onPartialResult", e);
+      e.printStackTrace();
+    }
+    LOG.i("onPartialResult", hypothesis);
+  }
+
+  @Override
+  public void onResult(String hypothesis) {
+    try {
+      JSONObject jsonObject = new JSONObject(hypothesis);
+      if (!jsonObject.get("text").toString().equalsIgnoreCase("")) {
+        PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
+        result.setKeepCallback(true);
+        this.callbackStartContext.sendPluginResult(result);
+      }
+    } catch (JSONException e) {
+      serdError("onResult", e);
+      e.printStackTrace();
+    }
+    LOG.i("onResult", hypothesis);
+  }
+
+
+  @Override
+  public void onError(Exception exception) {
+    serdError("onResult", exception);
+    LOG.e("onError", exception.getMessage());
+  }
+
+  @Override
+  public void onFinalResult(String hypothesis) {
+    LOG.i("onFinalResult", hypothesis);
+  }
+
+  @Override
+  public void onTimeout() {
+    LOG.i("vosk", "onTimeout");
+  }
+
+  // ******************************** PESMISOS ***********************************
+
+  /**
+   * check application's permissions
+   */
+  public boolean hasPermisssion() {
+    for (String p : permissions) {
+      if (!PermissionHelper.hasPermission(this, p)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * We override this so that we can access the permissions variable, which no longer exists in
+   * the parent class, since we can't initialize it reliably in the constructor!
+   *
+   * @param requestCode The code to get request action
+   */
+  public void requestPermissions(int requestCode) {
+    PermissionHelper.requestPermissions(this, requestCode, permissions);
+  }
+
+  /**
+   * processes the result of permission request
+   *
+   * @param requestCode  The code to get request action
+   * @param permissions  The collection of permissions
+   * @param grantResults The result of grant
+   */
+  public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                         int[] grantResults) {
+    PluginResult result;
+    for (int r : grantResults) {
+      if (r == PackageManager.PERMISSION_DENIED) {
+        LOG.e("Failed to unpack the model", "Permission Denied!");
+        result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
+        this.callbackEnableContext.sendPluginResult(result);
+        return;
+      }
+    }
+    if (requestCode == PERMISSIONS_REQUEST_RECORD_AUDIO) {
+      initModel();
+    }
+  }
 }

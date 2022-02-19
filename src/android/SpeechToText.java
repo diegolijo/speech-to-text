@@ -1,3 +1,4 @@
+
 /*   Diego Santiago 16-02-2022    */
 
 
@@ -33,9 +34,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 0;
   private Model model;
   private SpeechService speechService;
-
-  public static String EVENT_RESULT = "speech-result";
-  public static String EVENT_PARTIAL = "speech-partial-result";
 
 
   private final String[] permissions = {Manifest.permission.RECORD_AUDIO};
@@ -114,7 +112,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     return true;
   }
 
-  // ****************************** APP EVENTOS *********************************
+  // ****************************** APP CICLO DE VIDA *********************************
 
   /**
    * Called when the system is about to start resuming a previous activity.
@@ -237,8 +235,10 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   public void onPartialResult(String hypothesis) {
     try {
       JSONObject jsonObject = new JSONObject(hypothesis);
-      if (!jsonObject.get("partial").toString().equalsIgnoreCase("")) {
-        PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
+      String parcial = jsonObject.get("partial").toString();
+      if (!parcial.equalsIgnoreCase("")) {
+        JSONObject obj = new JSONObject().put("parcial", parcial);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
         this.callbackStartContext.sendPluginResult(result);
       }
@@ -253,8 +253,10 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   public void onResult(String hypothesis) {
     try {
       JSONObject jsonObject = new JSONObject(hypothesis);
-      if (!jsonObject.get("text").toString().equalsIgnoreCase("")) {
-        PluginResult result = new PluginResult(PluginResult.Status.OK, jsonObject);
+      String texto = jsonObject.get("text").toString();
+      if (!texto.equalsIgnoreCase("")) {
+        JSONObject obj = new JSONObject().put("texto", texto);
+        PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
         this.callbackStartContext.sendPluginResult(result);
       }
@@ -282,7 +284,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     LOG.i("vosk", "onTimeout");
   }
 
-  // ******************************** PESMISOS ***********************************
+  // ******************************** PERMISOS ***********************************
 
   /**
    * check application's permissions

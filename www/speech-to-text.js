@@ -11,6 +11,12 @@ var SpeechToText = {
   },
   stop: function (cb, error) {
     exec(cb, error, PLUGIN_NAME, 'stop', []);
+  },
+  isEnable: function (cb, error) {
+    exec(cb, error, PLUGIN_NAME, 'isEnable', []);
+  },
+  isPlaying: function (cb, error) {
+    exec(cb, error, PLUGIN_NAME, 'isPlaying', []);
   }
 };
 module.exports = SpeechToText;

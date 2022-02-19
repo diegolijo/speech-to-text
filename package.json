@@ -1,10 +1,16 @@
 {
   "name": "vosk-speech-to-text",
-  "version": "0.0.26",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/diegolijo/speech-to-text.git"
   },
   "author": "Diego Santiago - Vayapedal",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "vosk",
+    "speech-to-text",
+    "ecosystem:cordova",
+    "cordova-android"
+  ]
 }

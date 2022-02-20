@@ -1,6 +1,5 @@
 
-/*   Diego Santiago 16-02-2022    */
-
+/*   Diego Santiago 20-02-2022    */
 
 package com.vayapedal.speechtotext;
 
@@ -30,15 +29,19 @@ import org.vosk.android.StorageService;
 
 public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
+  /* Used to handle permission request */
   private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 0;
-  private final String[] permissions = {Manifest.permission.RECORD_AUDIO};
-
-  private CallbackContext callbackContext;
-
   private Model model;
   private SpeechService speechService;
   private boolean speechServiceIsEnable = false;
   private boolean speechServiceIsPlaying = false;
+
+
+  private final String[] permissions = {Manifest.permission.RECORD_AUDIO};
+
+  private CallbackContext callbackContextPlaying;
+  private CallbackContext callbackContextEnabled;
+
 
   /**
    * Called after plugin construction and fields have been initialized.
@@ -74,109 +77,96 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
    */
   @Override
   public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-    this.callbackContext = callbackContext;
     if (action.equalsIgnoreCase("enable")) {
       cordova.getThreadPool().execute(() -> {
         try {
+          this.callbackContextEnabled = callbackContext;
           initRecognizer();
         } catch (Exception e) {
           LOG.e("execute.enable", e.getMessage());
-          serdError("execute.enable", e);
+          serdError(this.callbackContextEnabled, "execute.enable", e);
         }
       });
-    }
-    if (action.equalsIgnoreCase("start")) {
+    } else if (action.equalsIgnoreCase("start")) {
       cordova.getThreadPool().execute(() -> {
         try {
+          this.callbackContextPlaying = callbackContext;
           startRecognizer();
         } catch (Exception e) {
           LOG.e("execute.start", e.getMessage());
-          serdError("execute.start", e);
+          serdError(this.callbackContextPlaying,"execute.start", e);
         }
       });
-    }
-    if (action.equalsIgnoreCase("stop")) {
+    } else if (action.equalsIgnoreCase("stop")) {
       cordova.getThreadPool().execute(() -> {
         try {
+          this.callbackContextPlaying = callbackContext;
           stopRecognizer();
         } catch (Exception e) {
           LOG.e("execute.stop", e.getMessage());
-          serdError("execute.stop", e);
+          serdError(this.callbackContextPlaying, "execute.stop", e);
         }
       });
-    }
-    if (action.equalsIgnoreCase("isEnable")) {
+    } else if (action.equalsIgnoreCase("isEnable")) {
       cordova.getThreadPool().execute(() -> {
         try {
           callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
             this.speechServiceIsEnable));
         } catch (Exception e) {
           LOG.e("execute.isEnable", e.getMessage());
-          serdError("execute.isEnable", e);
+          serdError(callbackContext,"execute.isEnable", e);
         }
       });
-    }
-    if (action.equalsIgnoreCase("isPlaying")) {
+    } else if (action.equalsIgnoreCase("isPlaying")) {
       cordova.getThreadPool().execute(() -> {
         try {
           callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
             this.speechServiceIsPlaying));
         } catch (Exception e) {
           LOG.e("execute.isPlaying", e.getMessage());
-          serdError("execute.isPlaying", e);
+          serdError(callbackContext, "execute.isPlaying", e);
         }
       });
     }
     return true;
   }
 
-  // ****************************** CICLO DE VIDA APP *******************************
+  // ****************************** CLICLO DE VIDA APP *********************************
 
-  /**
-   * Called when the system is about to start resuming a previous activity.
-   *
-   * @param multitasking Flag indicating if multitasking is turned on for app
-   */
   @Override
   public void onPause(boolean multitasking) {
     super.onPause(multitasking);
   }
 
-  /**
-   * Called when the activity will start interacting with the user.
-   *
-   * @param multitasking Flag indicating if multitasking is turned on for app
-   */
+
   @Override
   public void onResume(boolean multitasking) {
     super.onResume(multitasking);
   }
 
-  /**
-   * Called when the activity is becoming visible to the user.
-   */
+
   @Override
   public void onStart() {
     super.onStart();
   }
 
-  /**
-   * Called when the activity is no longer visible to the user.
-   */
+
   @Override
   public void onStop() {
     super.onStop();
   }
 
-  /**
-   * The final call you receive before your activity is destroyed.
-   */
   @Override
   public void onDestroy() {
     super.onDestroy();
+    if (speechService != null) {
+      speechService.stop();
+      speechService = null;
+    }
   }
 
   //******************************** Recognizer ***************************************
+
 
   private void initRecognizer() {
     if (!hasPermisssion()) {
@@ -193,7 +183,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         try {
           initRecognize();
         } catch (JSONException e) {
-          serdError("initModel", e);
+          serdError(this.callbackContextEnabled,"initModel", e);
           e.printStackTrace();
         }
       },
@@ -204,7 +194,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     if (speechService != null) {
       speechService.stop();
       speechService = null;
-      this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
+      this.callbackContextEnabled.sendPluginResult(new PluginResult(PluginResult.Status.OK,
         getJson("recognize", "off")));
       speechServiceIsEnable = false;
       speechServiceIsPlaying = false;
@@ -212,12 +202,12 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       try {
         Recognizer rec = new Recognizer(model, 16000.0f);
         speechService = new SpeechService(rec, 16000.0f);
-        this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
+        this.callbackContextEnabled.sendPluginResult(new PluginResult(PluginResult.Status.OK,
           getJson("recognize", "on")));
         speechServiceIsEnable = true;
       } catch (IOException | JSONException e) {
         LOG.e("initRecognize", e.getMessage());
-        serdError("initRecognize", e);
+        serdError(this.callbackContextEnabled, "initRecognize", e);
       }
     }
   }
@@ -227,14 +217,21 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       speechService.startListening(this);
       speechServiceIsPlaying = true;
     }
+    PluginResult result = new PluginResult(PluginResult.Status.OK,
+      getJson("recognize", "play"));
+    result.setKeepCallback(true);
+    this.callbackContextPlaying.sendPluginResult(result);
   }
 
   private void stopRecognizer() throws JSONException {
     if (speechService != null) {
       speechService.stop();
-      speechServiceIsPlaying = false;
+      speechServiceIsPlaying = false;  
     }
+    this.callbackContextPlaying.sendPluginResult(new PluginResult(PluginResult.Status.OK,
+      getJson("recognize", "stop")));
   }
+
 
   @NonNull
   private JSONObject getJson(String action, String result) throws JSONException {
@@ -244,11 +241,14 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     return obj;
   }
 
-  private void serdError(String tag, @NonNull Exception e) {
-    this.callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, tag + e.getMessage()));
+
+  private void serdError(CallbackContext context, String tag, @NonNull Exception e) {
+    context.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, tag + e.getMessage()));
   }
 
+
   // ******************************** EVENTOS VOSK **************************************
+
 
   @Override
   public void onPartialResult(String hypothesis) {
@@ -259,10 +259,10 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         JSONObject obj = new JSONObject().put("parcial", parcial);
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
-        this.callbackContext.sendPluginResult(result);
+        this.callbackContextPlaying.sendPluginResult(result);
       }
     } catch (JSONException e) {
-      serdError("onPartialResult", e);
+      serdError(this.callbackContextPlaying, "onPartialResult", e);
       e.printStackTrace();
     }
     LOG.i("onPartialResult", hypothesis);
@@ -277,10 +277,10 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         JSONObject obj = new JSONObject().put("texto", texto);
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
-        this.callbackContext.sendPluginResult(result);
+        this.callbackContextPlaying.sendPluginResult(result);
       }
     } catch (JSONException e) {
-      serdError("onResult", e);
+      serdError(this.callbackContextPlaying,"onResult", e);
       e.printStackTrace();
     }
     LOG.i("onResult", hypothesis);
@@ -289,7 +289,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
   @Override
   public void onError(Exception exception) {
-    serdError("onResult", exception);
+    serdError(this.callbackContextPlaying,"onResult", exception);
     LOG.e("onError", exception.getMessage());
   }
 
@@ -303,7 +303,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     LOG.i("vosk", "onTimeout");
   }
 
-  // ******************************** PERMISOS ***********************************
+  // ******************************** PESMISOS ***********************************
 
   /**
    * check application's permissions
@@ -341,7 +341,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       if (r == PackageManager.PERMISSION_DENIED) {
         LOG.e("Failed to unpack the model", "Permission Denied!");
         result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-        this.callbackContext.sendPluginResult(result);
+        this.callbackContextEnabled.sendPluginResult(result);
         return;
       }
     }

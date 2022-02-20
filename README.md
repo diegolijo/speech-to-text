@@ -1,4 +1,4 @@
-# Vosk offline Speech-to-Text Cordova plugin (español)
-
+# vosk-speech-to-text
+Speech-to-Text offline Cordova plugin (español)
 ## install
-cordova plugins add vosk-speech-to-text
+- cordova plugins add vosk-speech-to-text

@@ -3,8 +3,8 @@ var exec = require('cordova/exec');
 var PLUGIN_NAME = 'SpeechToText';
 
 var SpeechToText = {
-  enable: function (cb, error, idioma) {
-    exec(cb, error, PLUGIN_NAME, 'enable', [idioma]);
+  enable: function (cb, error, locale) {
+    exec(cb, error, PLUGIN_NAME, 'enable', [locale]);
   },
   start: function (cb, error) {
     exec(cb, error, PLUGIN_NAME, 'start', []);
@@ -17,6 +17,9 @@ var SpeechToText = {
   },
   isPlaying: function (cb, error) {
     exec(cb, error, PLUGIN_NAME, 'isPlaying', []);
+  },
+  download: function (cb, error, locale) {
+    exec(cb, error, PLUGIN_NAME, 'download', [locale]);
   }
 };
 module.exports = SpeechToText;

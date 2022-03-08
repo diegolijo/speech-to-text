@@ -36,12 +36,7 @@ import java.util.zip.ZipInputStream;
 
 public class Downloads {
 
-  private Activity activity;
-  private BroadcastReceiver downloadingBroadcastReceiver = null;
-  private Long currentDownloadId = null;
-  private final CompositeDisposable disposables = new CompositeDisposable();
-  public static final String MODEL_PATH = "/vosk-model";
-  public static final String MODEL_ZIP_FILENAME = "model.zip";
+
   public static final Map<String, String> MODEL_URLS = new HashMap<String, String>() {{
     put("en", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip");
     put("en-in", "https://alphacephei.com/vosk/models/vosk-model-small-en-in-0.4.zip");
@@ -62,29 +57,31 @@ public class Downloads {
     put("kz", "https://alphacephei.com/vosk/models/vosk-model-small-kz-0.15.zip");
   }};
 
+  private final Activity activity;
+  private final FileManager fileManager;
+  private CallbackContext callbackContextDownload;
+  private BroadcastReceiver downloadingBroadcastReceiver = null;
+  private Long currentDownloadId = null;
+  private final CompositeDisposable disposables = new CompositeDisposable();
+
   public Downloads(Activity activity) {
     this.activity = activity;
+    fileManager = new FileManager(activity);
   }
-
 
   public void download(CallbackContext callbackContextDownload, String locale, final boolean manual) throws JSONException {
     Log.d("download -> ", "***************** Init ****************");
+    this.callbackContextDownload = callbackContextDownload;
+
     final DownloadManager downloadManager = (DownloadManager) activity.getSystemService(Context.DOWNLOAD_SERVICE);
     if (currentDownloadId == null) {
-      Log.d("download -> ", "Aun no se inicio ninguna descarga");
       if (manual) { // manual download
-        // the model needs to be downloaded and no download has already started;
-        // the user manually triggered the input device, so he surely wants the
-        // model to be downloaded, so we can proceed
         try {
-          sendCallback(callbackContextDownload, "start" , true);
-         /* todo final LocaleResolutionResult result = resolveSupportedLocale(
-            LocaleListCompat.create(Sections.getCurrentLocale()),
-            MODEL_URLS.keySet());*/
-          startDownloadingModel(downloadManager, locale);
+          sendCallback(callbackContextDownload, "start", true);
+          startDownloadingModel(downloadManager, locale, callbackContextDownload);
         } catch (Exception e) {
           e.printStackTrace();
-          // todo   onRequiresDownload();
+          sendCallback(callbackContextDownload, "error descarga", false);
         }
       } else {
         // loading the model would require downloading it, but the user didn't
@@ -94,33 +91,37 @@ public class Downloads {
       }
     } else {
       Log.e("download -> ", "Vosk model already being downloaded: currentModelDownloadId");
-      sendCallback(callbackContextDownload, "busy" , true);
+      sendCallback(callbackContextDownload, "busy", false);
     }
   }
 
 
   private void startDownloadingModel(final DownloadManager downloadManager,
-                                     final String language) {
-    final File modelZipFile = getModelZipFile();
+                                     final String locale,
+                                     CallbackContext callbackContextDownload) {
+    // borramos el zip y la carpeta del modelo antes de iniciar la descarga
+    final File modelZipFile = fileManager.getModelZipFile();
     //noinspection ResultOfMethodCallIgnored
-    modelZipFile.delete(); // if existing, delete the model zip file (should never happen)
+    modelZipFile.delete();
+    File f = fileManager.loadModelDirectory(locale);
+    FileManager.deleteFolder(f);
 
     // build download manager request
-    final String modelUrl = MODEL_URLS.get(language);
+    final String modelUrl = MODEL_URLS.get(locale);
     final DownloadManager.Request request = new DownloadManager.Request(Uri.parse(modelUrl))
-      .setTitle("Modelo Vosk").setDescription("Idioma: %1$s")
+      .setTitle("Modelo Vosk").setDescription("Idioma: " + locale)
       .setDestinationUri(Uri.fromFile(modelZipFile));
-
     // setup download completion listener
+
     final IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
     downloadingBroadcastReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(final Context context, final Intent intent) {
         Log.d("startDownloadingModel->", "Got intent for downloading broadcast receiver: " + intent);
         if (downloadingBroadcastReceiver == null) {
-          return; // just to be sure there are no issues with threads
+          return;
         }
-
+        // DOWNLOAD_COMPLETE
         if (intent.getAction().equals(DownloadManager.ACTION_DOWNLOAD_COMPLETE)) {
           final long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
 
@@ -135,98 +136,64 @@ public class Downloads {
             downloadingBroadcastReceiver = null;
           }
 
-          if (downloadManager.getMimeTypeForDownloadedFile(currentDownloadId)
-            == null) {
+          if (downloadManager.getMimeTypeForDownloadedFile(currentDownloadId) == null) {
+            try {
+              sendCallback(callbackContextDownload, "vosk_model_download_err", false);
+            } catch (JSONException e) {
+              e.printStackTrace();
+            }
             Log.e("startDownloadingModel->", "Failed to download vosk model");
-            //todo asyncMakeToast(R.string.vosk_model_download_error);
             downloadManager.remove(currentDownloadId);
             updateCurrentDownloadId(activity, null);
-            //todo showstate  onInactive();
             return;
           }
 
           Log.d("startDownloadingModel->", "Vosk model download complete, extracting from zip");
+
           disposables.add(Completable
             .fromAction(Downloads.this::extractModelZip)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(() -> {
-                //todo   asyncMakeToast(R.string.vosk_model_ready);
                 downloadManager.remove(currentDownloadId);
                 updateCurrentDownloadId(activity, null);
 
-                // surely the user pressed a button a while ago that
-                // triggered the download process, so manual=true
-                // todo  load(true);
+                try {
+                  sendCallback(callbackContextDownload, "vosk_model_save", false);
+                } catch (JSONException e) {
+                  e.printStackTrace();
+                }
               },
               throwable -> {
-                //todo    asyncMakeToast(R.string.vosk_model_extraction_error);
-                //todo throwable.printStackTrace();
+                try {
+                  sendCallback(callbackContextDownload, "vosk_model_extraction_error", false);
+                } catch (JSONException e) {
+                  e.printStackTrace();
+                }
                 downloadManager.remove(currentDownloadId);
                 updateCurrentDownloadId(activity, null);
-                //todo showstate  onInactive();
               }));
         }
       }
     };
-    activity.registerReceiver(downloadingBroadcastReceiver, filter);
 
-    // launch download
+    activity.registerReceiver(downloadingBroadcastReceiver, filter);
     Log.d("startDownloadingModel->", "Starting vosk model download: " + request);
     updateCurrentDownloadId(activity, downloadManager.enqueue(request));
-  }
-  ////////////////////
-  // File utilities //
-  ////////////////////
-
-  private File getDestinationFile(final String entryName) throws IOException {
-    // model files are under a subdirectory, so get the path after the first /
-    final String filePath = entryName.substring(entryName.indexOf('/') + 1);
-    final File destinationDirectory = getModelDirectory();
-
-    // protect from Zip Slip vulnerability (!)
-    final File destinationFile = new File(destinationDirectory, filePath);
-    if (!destinationDirectory.getCanonicalPath().equals(destinationFile.getCanonicalPath()) &&
-      !destinationFile.getCanonicalPath().startsWith(
-        destinationDirectory.getCanonicalPath() + File.separator)) {
-      throw new IOException("Entry is outside of the target dir: " + entryName);
-    }
-
-    return destinationFile;
-  }
-
-  private File getModelDirectory() {
-    return new File(activity.getFilesDir(), MODEL_PATH);
-  }
-
-  private File getModelZipFile() {
-    return new File(activity.getExternalFilesDir(null), MODEL_ZIP_FILENAME);
-  }
-
-  @SuppressWarnings("ResultOfMethodCallIgnored")
-  private static void deleteFolder(final File file) {
-    final File[] subFiles = file.listFiles();
-    if (subFiles != null) {
-      for (final File subFile : subFiles) {
-        if (subFile.isDirectory()) {
-          deleteFolder(subFile);
-        } else {
-          subFile.delete();
-        }
-      }
-    }
-    file.delete();
   }
 
 
   private void extractModelZip() throws IOException {
-    //todo asyncMakeToast(R.string.vosk_model_extracting);
-
+    try {
+      sendCallback(this.callbackContextDownload, "vosk_model_extracting", true);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
     try (final ZipInputStream zipInputStream =
-           new ZipInputStream(new FileInputStream(getModelZipFile()))) {
+           new ZipInputStream(new FileInputStream(fileManager.getModelZipFile()))) {
       ZipEntry entry; // cycles through all entries
       while ((entry = zipInputStream.getNextEntry()) != null) {
-        final File destinationFile = getDestinationFile(entry.getName());
+        final File destinationFile = fileManager.getDestinationFile(entry.getName());
 
         if (entry.isDirectory()) {
           // create directory
@@ -252,11 +219,10 @@ public class Downloads {
     }
   }
 
-
+  // TODO
   private void updateCurrentDownloadId(final Context context, final Long id) {
     // this field is used anywhere except in static contexts, where the preference is used
     currentDownloadId = id;
-
     final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
     final String downloadIdKey = "vosk_download_id";
     if (id == null) {
@@ -267,18 +233,17 @@ public class Downloads {
     }
   }
 
-  //******************************  CORDOVA COMUNICACION **************************************
 
+  //******************************  CORDOVA COMUNICACION **************************************
 
 
   private void sendCallback(CallbackContext callbackContextDownload,
                             String result, boolean keepCallback) throws JSONException {
     PluginResult res = new PluginResult(PluginResult.Status.OK,
       getJson(result));
-    if (keepCallback) {
-      res.setKeepCallback(true);
-    }
+    res.setKeepCallback(keepCallback);
     callbackContextDownload.sendPluginResult(res);
+
   }
 
   @NonNull

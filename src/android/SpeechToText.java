@@ -8,18 +8,13 @@ import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
-import org.apache.cordova.PluginResult;
 import org.apache.cordova.PermissionHelper;
-
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,6 +23,9 @@ import org.vosk.Recognizer;
 import org.vosk.android.RecognitionListener;
 import org.vosk.android.SpeechService;
 import org.vosk.android.StorageService;
+
+import java.io.File;
+import java.io.IOException;
 
 public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
@@ -134,24 +132,24 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           serdError(callbackContext, "execute.download", e);
         }
       });
-    } else if (action.equalsIgnoreCase("getAvaliables")) {
+    } else if (action.equalsIgnoreCase("getDownloadedLanguages")) {
       cordova.getThreadPool().execute(() -> {
         try {
           callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
             fileManager.getSavedModels()));
         } catch (Exception e) {
-          LOG.e("execute.getLanguages", e.getMessage());
-          serdError(callbackContext, "execute.getLanguages", e);
+          LOG.e("execute.getDownloadedLanguages", e.getMessage());
+          serdError(callbackContext, "execute.getDownloadedLanguages", e);
         }
       });
-    } else if (action.equalsIgnoreCase("getLanguages")) {
+    } else if (action.equalsIgnoreCase("getAvailableLanguages")) {
       cordova.getThreadPool().execute(() -> {
         try {
           callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
             new JSONObject(FileManager.MODEL_PATHS)));
         } catch (Exception e) {
-          LOG.e("execute.getLanguages", e.getMessage());
-          serdError(callbackContext, "execute.getLanguages", e);
+          LOG.e("execute.getAvailableLanguages", e.getMessage());
+          serdError(callbackContext, "execute.getAvailableLanguages", e);
         }
       });
     }

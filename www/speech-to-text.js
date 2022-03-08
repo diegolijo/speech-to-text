@@ -20,6 +20,12 @@ var SpeechToText = {
   },
   download: function (cb, error, locale) {
     exec(cb, error, PLUGIN_NAME, 'download', [locale]);
+  },
+  getDownloadedLanguages: function (cb, error ) {
+    exec(cb, error, PLUGIN_NAME, 'getDownloadedLanguages', []);
+  },
+  getAvailableLanguages: function (cb, error ) {
+    exec(cb, error, PLUGIN_NAME, 'getAvailableLanguages', []);
   }
 };
 module.exports = SpeechToText;

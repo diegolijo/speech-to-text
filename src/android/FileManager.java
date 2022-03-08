@@ -1,15 +1,9 @@
 package com.vayapedal.speechtotext;
 
-
 import android.app.Activity;
-
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

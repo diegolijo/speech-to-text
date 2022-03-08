@@ -11,15 +11,14 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.preference.PreferenceManager;    //todo      implementation 'androidx.preference:preference:1.2.0'
-
+import androidx.preference.PreferenceManager;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.reactivex.rxjava3.disposables.CompositeDisposable; // todo     implementation "io.reactivex.rxjava3:rxjava:3.0.8"    implementation "io.reactivex.rxjava3:rxandroid:3.0.0"
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;

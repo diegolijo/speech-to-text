@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.0.18">
+    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.0.19">
     <name>vosk-speech-to-text</name>
     <description>Vosk offline Speech-to-Text Cordova plugin (español)</description>
     <license>MIT</license>
@@ -43,6 +43,7 @@
         <source-file src="src/android/SpeechToText.java" target-dir="src/com/vayapedal/speechtotext" />
         <source-file src="src/android/Downloads.java" target-dir="src/com/vayapedal/speechtotext" />
         <source-file src="src/android/FileManager.java" target-dir="src/com/vayapedal/speechtotext" />
+        <source-file src="src/android/NativeListener.java" target-dir="src/com/vayapedal/speechtotext" />
         <!-- <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
          <source-file src="src/android/libs/vosk-android-0.3.32.aar" target-dir="app/src/com/vayapedal/libs"/>
          <source-file src="src/android/libs/jna-5.8.0.aar" target-dir="app/src/com/vayapedal/libs" />

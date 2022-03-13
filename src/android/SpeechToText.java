@@ -77,8 +77,8 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       cordova.getThreadPool().execute(() -> {
         try {
           this.callbackContextEnabled = callbackContext;
-           String locale = args.get(0).toString();
-          initRecognizer(locale); 
+          String locale = args.get(0).toString();
+          initRecognizer(locale);
         } catch (Exception e) {
           LOG.e("execute.enable", e.getMessage());
           serdError(this.callbackContextEnabled, "execute.enable", e);
@@ -155,11 +155,24 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           serdError(callbackContext, "execute.getAvailableLanguages", e);
         }
       });
-    }else if (action.equalsIgnoreCase("nativeCall")) {
+    } else if (action.equalsIgnoreCase("nativeCall")) {
       cordova.getThreadPool().execute(() -> {
         try {
-            String param = args.get(0).toString();
+          NativeListener listener = new NativeListener(callbackContext);
+          switch (args.get(0).toString()) {
+            case "init":
+              initAudioStream(listener);
+              break;
+            case "rta":
 
+              break;
+            case "level":
+
+              break;
+            default:
+
+              break;
+          }
         } catch (Exception e) {
           LOG.e("execute.nativeCall", e.getMessage());
           serdError(callbackContext, "execute.nativeCall", e);
@@ -406,7 +419,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   }
 
 
-  private native boolean initAudioStream();
+  private native boolean initAudioStream(NativeListener listener);
 
   private native boolean playSeno(Boolean enable);
 

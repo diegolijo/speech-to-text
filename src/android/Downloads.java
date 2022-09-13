@@ -36,25 +36,27 @@ import java.util.zip.ZipInputStream;
 public class Downloads {
 
 
-  public static final Map<String, String> MODEL_URLS = new HashMap<String, String>() {{
-    put("en", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip");
-    put("en-in", "https://alphacephei.com/vosk/models/vosk-model-small-en-in-0.4.zip");
-    put("cn", "https://alphacephei.com/vosk/models/vosk-model-small-cn-0.3.zip");
-    put("ru", "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.15.zip");
-    put("fr", "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip");
-    put("de", "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip");
-    put("es", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.3.zip");
-    put("pt", "https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip");
-    put("tr", "https://alphacephei.com/vosk/models/vosk-model-small-tr-0.3.zip");
-    put("vn", "https://alphacephei.com/vosk/models/vosk-model-small-vn-0.3.zip");
-    put("it", "https://alphacephei.com/vosk/models/vosk-model-small-it-0.4.zip");
-    put("nl", "https://alphacephei.com/vosk/models/vosk-model-nl-spraakherkenning-0.6-lgraph.zip");
-    put("ca", "https://alphacephei.com/vosk/models/vosk-model-small-ca-0.4.zip");
-    put("fa", "https://alphacephei.com/vosk/models/vosk-model-small-fa-0.4.zip");
-    put("ph", "https://alphacephei.com/vosk/models/vosk-model-tl-ph-generic-0.6.zip");
-    put("uk", "https://alphacephei.com/vosk/models/vosk-model-small-uk-v3-nano.zip");
-    put("kz", "https://alphacephei.com/vosk/models/vosk-model-small-kz-0.15.zip");
-  }};
+  public static final Map<String, String> MODEL_URLS = new HashMap<String, String>() {
+    {
+      put("en", "https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip");
+      put("en-in", "https://alphacephei.com/vosk/models/vosk-model-small-en-in-0.4.zip");
+      put("cn", "https://alphacephei.com/vosk/models/vosk-model-small-cn-0.3.zip");
+      put("ru", "https://alphacephei.com/vosk/models/vosk-model-small-ru-0.15.zip");
+      put("fr", "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip");
+      put("de", "https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip");
+      put("es", "https://alphacephei.com/vosk/models/vosk-model-small-es-0.3.zip");
+      put("pt", "https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip");
+      put("tr", "https://alphacephei.com/vosk/models/vosk-model-small-tr-0.3.zip");
+      put("vn", "https://alphacephei.com/vosk/models/vosk-model-small-vn-0.3.zip");
+      put("it", "https://alphacephei.com/vosk/models/vosk-model-small-it-0.4.zip");
+      put("nl", "https://alphacephei.com/vosk/models/vosk-model-nl-spraakherkenning-0.6-lgraph.zip");
+      put("ca", "https://alphacephei.com/vosk/models/vosk-model-small-ca-0.4.zip");
+      put("fa", "https://alphacephei.com/vosk/models/vosk-model-small-fa-0.4.zip");
+      put("ph", "https://alphacephei.com/vosk/models/vosk-model-tl-ph-generic-0.6.zip");
+      put("uk", "https://alphacephei.com/vosk/models/vosk-model-small-uk-v3-nano.zip");
+      put("kz", "https://alphacephei.com/vosk/models/vosk-model-small-kz-0.15.zip");
+    }
+  };
 
   private final Activity activity;
   private final FileManager fileManager;

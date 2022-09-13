@@ -78,9 +78,12 @@ public class FileManager {
 
   public JSONArray getSavedModels() {
     JSONArray obj = new JSONArray();
-    for (File file : Objects.requireNonNull(new File(activity.getExternalFilesDir(null), MODELS_PATH).listFiles())) {
-      if (file.isDirectory()) {
-        obj.put(file.getName());
+    File[] fs = new File(activity.getExternalFilesDir(null), MODELS_PATH).listFiles();
+    if (fs != null) {
+      for (File file : fs) {
+        if (file.isDirectory()) {
+          obj.put(file.getName());
+        }
       }
     }
     return obj;

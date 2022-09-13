@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.0.20">
+    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.0.22">
     <name>vosk-speech-to-text</name>
     <description>Vosk offline Speech-to-Text Cordova plugin (español)</description>
     <license>MIT</license>
@@ -30,7 +30,7 @@
         <framework src="src/models" target-dir="/models" custom="true" type="projectReference" />
         <!-- gardle -->
         <framework src="src/android/build.gradle"  custom="true" type="gradleReference" />
-        <!-- Librerias remotas, no necesita declararse en el gradle  -->
+        <!-- Librerias remotas, no es necesario declararlas en el gradle  -->
         <framework src="net.java.dev.jna:jna:5.8.0@aar" />
         <framework src="com.alphacephei:vosk-android:0.3.32" />
         <framework src="androidx.preference:preference:1.1.0" />

@@ -50,6 +50,8 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     System.loadLibrary("native_c");
   }
 
+  private String locale = "";
+
   /**
    * Called after plugin construction and fields have been initialized.
    * Prefer to use pluginInitialize instead since there is no value in
@@ -78,10 +80,10 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         try {
           this.callbackContextEnabled = callbackContext;
           String locale = args.get(0).toString();
-          initRecognizer(locale);
+          enableRecognizer(locale);
         } catch (Exception e) {
           LOG.e("execute.enable", e.getMessage());
-          serdError(this.callbackContextEnabled, "execute.enable", e);
+          serdError(this.callbackContextEnabled, "execute.enable", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("start")) {
@@ -91,7 +93,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           startRecognizer();
         } catch (Exception e) {
           LOG.e("execute.start", e.getMessage());
-          serdError(this.callbackContextPlaying, "execute.start", e);
+          serdError(this.callbackContextPlaying, "execute.start", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("stop")) {
@@ -101,7 +103,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           stopRecognizer();
         } catch (Exception e) {
           LOG.e("execute.stop", e.getMessage());
-          serdError(this.callbackContextPlaying, "execute.stop", e);
+          serdError(this.callbackContextPlaying, "execute.stop", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("isEnable")) {
@@ -111,7 +113,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
             this.speechServiceIsEnable));
         } catch (Exception e) {
           LOG.e("execute.isEnable", e.getMessage());
-          serdError(callbackContext, "execute.isEnable", e);
+          serdError(callbackContext, "execute.isEnable", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("isPlaying")) {
@@ -121,7 +123,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
             this.speechServiceIsPlaying));
         } catch (Exception e) {
           LOG.e("execute.isPlaying", e.getMessage());
-          serdError(callbackContext, "execute.isPlaying", e);
+          serdError(callbackContext, "execute.isPlaying", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("download")) {
@@ -132,7 +134,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           donwnload(locale);
         } catch (Exception e) {
           LOG.e("execute.download", e.getMessage());
-          serdError(callbackContext, "execute.download", e);
+          serdError(callbackContext, "execute.download", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("getDownloadedLanguages")) {
@@ -142,7 +144,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
             fileManager.getSavedModels()));
         } catch (Exception e) {
           LOG.e("execute.getDownloadedLanguages", e.getMessage());
-          serdError(callbackContext, "execute.getDownloadedLanguages", e);
+          serdError(callbackContext, "execute.getDownloadedLanguages", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("getAvailableLanguages")) {
@@ -152,7 +154,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
             new JSONObject(FileManager.MODEL_PATHS)));
         } catch (Exception e) {
           LOG.e("execute.getAvailableLanguages", e.getMessage());
-          serdError(callbackContext, "execute.getAvailableLanguages", e);
+          serdError(callbackContext, "execute.getAvailableLanguages", e.getMessage());
         }
       });
     } else if (action.equalsIgnoreCase("nativeCall")) {
@@ -175,7 +177,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           }
         } catch (Exception e) {
           LOG.e("execute.nativeCall", e.getMessage());
-          serdError(callbackContext, "execute.nativeCall", e);
+          serdError(callbackContext, "execute.nativeCall", e.getMessage());
         }
       });
     }
@@ -217,29 +219,31 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     }
   }
 
-  //******************************** Recognizer ***************************************
-
-  private void initRecognizer(String locale) {
+  //******************************** CONFIG SPEECH *************************************
+  private void enableRecognizer(String locale) {
     if (!hasPermisssion()) {
+      this.locale = locale;
       requestPermissions(PERMISSIONS_REQUEST_RECORD_AUDIO);
     } else {
       File f = fileManager.getModelDirectory(FileManager.MODEL_PATHS.get(locale));
       if (f != null && f.isDirectory()) {
         loadModel(locale);
       } else {
-        initModel();
+        //initDefaultModel();
+        serdError(this.callbackContextEnabled, "initRecognize", "No se encuentra el model en la carpeta de descargas");
       }
     }
   }
 
-  private void initModel() {
+
+  private void initDefaultModel() {
     StorageService.unpack(this.cordova.getContext(), "model-small-es", "model",
       (model) -> {
         this.model = model;
         try {
           initRecognize();
         } catch (JSONException e) {
-          serdError(this.callbackContextEnabled, "initRecognize", e);
+          serdError(this.callbackContextEnabled, "initRecognize", e.getMessage());
           e.printStackTrace();
         }
       },
@@ -247,33 +251,29 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   }
 
   private void loadModel(String locale) {
-    this.model = new Model(fileManager.loadModelDirectory(locale).getAbsolutePath());
     try {
+      this.model = new Model(fileManager.loadModelDirectory(locale).getAbsolutePath());
       initRecognize();
     } catch (JSONException e) {
-      serdError(this.callbackContextEnabled, "initRecognize", e);
+      serdError(this.callbackContextEnabled, "initRecognize", e.getMessage());
       e.printStackTrace();
     }
   }
 
   private void initRecognize() throws JSONException {
-    if (speechService != null) {
-      speechService.stop();
-      speechService = null;
-      this.callbackContextEnabled.sendPluginResult(new PluginResult(PluginResult.Status.OK,
-        getJson("off")));
-      speechServiceIsEnable = false;
-      speechServiceIsPlaying = false;
-    } else {
-      try {
-        speechService = new SpeechService(new Recognizer(model, SAMPLE_RATE), SAMPLE_RATE);
-        this.callbackContextEnabled.sendPluginResult(new PluginResult(PluginResult.Status.OK,
-          getJson("on")));
-        speechServiceIsEnable = true;
-      } catch (IOException | JSONException e) {
-        LOG.e("initRecognize", e.getMessage());
-        serdError(this.callbackContextEnabled, "initRecognize", e);
+    try {
+      if (speechService != null) {
+        speechService.stop();
+        speechService = null;
+        speechServiceIsEnable = false;
+        speechServiceIsPlaying = false;
       }
+      speechService = new SpeechService(new Recognizer(this.model, SAMPLE_RATE), SAMPLE_RATE);
+      this.callbackContextEnabled.sendPluginResult(new PluginResult(PluginResult.Status.OK, getJson("enabled")));
+      speechServiceIsEnable = true;
+    } catch (IOException | JSONException e) {
+      LOG.e("initRecognize", e.getMessage());
+      serdError(this.callbackContextEnabled, "initRecognize", e.getMessage());
     }
   }
 
@@ -297,20 +297,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       getJson("stop")));
   }
 
-
-  @NonNull
-  private JSONObject getJson(String result) throws JSONException {
-    JSONObject obj = new JSONObject();
-    obj.put("action", "recognize");
-    obj.put("result", result);
-    return obj;
-  }
-
-  private void serdError(CallbackContext context, String tag, @NonNull Exception e) {
-    context.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, tag + e.getMessage()));
-  }
-
-
   // ******************************** EVENTOS VOSK **************************************
   @Override
   public void onPartialResult(String hypothesis) {
@@ -324,7 +310,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         this.callbackContextPlaying.sendPluginResult(result);
       }
     } catch (JSONException e) {
-      serdError(this.callbackContextPlaying, "onPartialResult", e);
+      serdError(this.callbackContextPlaying, "onPartialResult", e.getMessage());
       e.printStackTrace();
     }
     LOG.i("onPartialResult", hypothesis);
@@ -342,7 +328,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         this.callbackContextPlaying.sendPluginResult(result);
       }
     } catch (JSONException e) {
-      serdError(this.callbackContextPlaying, "onResult", e);
+      serdError(this.callbackContextPlaying, "onResult", e.getMessage());
       e.printStackTrace();
     }
     LOG.i("onResult", hypothesis);
@@ -350,7 +336,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
   @Override
   public void onError(Exception exception) {
-    serdError(this.callbackContextPlaying, "onResult", exception);
+    serdError(this.callbackContextPlaying, "onResult", exception.getMessage());
     LOG.e("onError", exception.getMessage());
   }
 
@@ -369,7 +355,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private void donwnload(String locale) throws JSONException {
     downloads.download(callbackContextDownload, locale, true);
   }
-
 
   // *********************************** PESMISOS *****************************************
 
@@ -413,12 +398,26 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         return;
       }
     }
+
     if (requestCode == PERMISSIONS_REQUEST_RECORD_AUDIO) {
-      initModel();
+      enableRecognizer(this.locale);
     }
   }
 
+  // ******************************** UTIL **************************************
+  @NonNull
+  private JSONObject getJson(String result) throws JSONException {
+    JSONObject obj = new JSONObject();
+    obj.put("action", "recognize");
+    obj.put("result", result);
+    return obj;
+  }
 
+  private void serdError(CallbackContext context, String tag, String message) {
+    context.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, tag + message));
+  }
+
+  // ****************************** NATIVE ************************************
   private native boolean initAudioStream(NativeListener listener);
 
   private native boolean playSeno(Boolean enable);

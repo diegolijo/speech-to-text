@@ -27,6 +27,7 @@ var SpeechToText = {
   getAvailableLanguages: function (cb, error ) {
     exec(cb, error, PLUGIN_NAME, 'getAvailableLanguages', []);
   },
+  // TODO
   nativeCall: function (cb, error, param) {
     exec(cb, error, PLUGIN_NAME, 'nativeCall', [param]);
   },

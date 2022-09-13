@@ -5,7 +5,8 @@ project("native_c")
 add_library(
         native_c
         SHARED
-        native-lib.cpp)
+        native-lib.cpp
+        AudioEngine.cpp)
 
 find_library(
         log-lib

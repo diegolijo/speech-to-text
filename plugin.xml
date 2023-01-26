@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.0.22">
+    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.1.4">
     <name>vosk-speech-to-text</name>
-    <description>Vosk offline Speech-to-Text Cordova plugin (español)</description>
+    <description>Vosk offline Speech-to-Text Cordova plugin</description>
     <license>MIT</license>
     <keywords>speech to text, Vosk</keywords>
     <repo>https://github.com/diegolijo/speech-to-text.git</repo>
@@ -11,42 +11,42 @@
     </engines>
     <!-- android -->
     <platform name="android">
+
         <js-module src="www/speech-to-text.js" name="SpeechToText">
             <runs/>
             <clobbers target="cordova.plugins.SpeechToText" />
         </js-module>
+
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SpeechToText">
                 <param name="android-package" value="com.vayapedal.speechtotext.SpeechToText" />
                 <param name="onload" value="true" />
             </feature>
         </config-file>
+
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
             <uses-permission android:name="android.permission.RECORD_AUDIO" />
             <uses-permission android:name="android.permission.VIBRATE" />
         </config-file>
-        <!-- vosk model -->
-        <framework src="src/models" target-dir="/models" custom="true" type="projectReference" />
-        <!-- gardle -->
-        <framework src="src/android/build.gradle"  custom="true" type="gradleReference" />
+
+
+        <!-- para importar las librerias descargadas en src\android\libs:            
+         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+         <source-file src="src/android/libs/vosk-android-0.3.32.aar" target-dir="app/src/com/vayapedal/libs"/>
+         <source-file src="src/android/libs/jna-5.8.0.aar" target-dir="app/src/com/vayapedal/libs" />
+         -->
         <!-- Librerias remotas, no es necesario declararlas en el gradle  -->
         <framework src="net.java.dev.jna:jna:5.8.0@aar" />
         <framework src="com.alphacephei:vosk-android:0.3.32" />
         <framework src="androidx.preference:preference:1.1.0" />
         <framework src="io.reactivex.rxjava3:rxjava:3.0.8" />
         <framework src="io.reactivex.rxjava3:rxandroid:3.0.0" />
-        <framework src="com.google.oboe:oboe:1.6.1" />
-        <!-- native c -->
-        <source-file src="src/android/cpp" target-dir="src/main" />
+
         <!--  java -->
         <source-file src="src/android/SpeechToText.java" target-dir="src/com/vayapedal/speechtotext" />
         <source-file src="src/android/Downloads.java" target-dir="src/com/vayapedal/speechtotext" />
         <source-file src="src/android/FileManager.java" target-dir="src/com/vayapedal/speechtotext" />
-        <source-file src="src/android/NativeListener.java" target-dir="src/com/vayapedal/speechtotext" />
-        <!-- <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
-         <source-file src="src/android/libs/vosk-android-0.3.32.aar" target-dir="app/src/com/vayapedal/libs"/>
-         <source-file src="src/android/libs/jna-5.8.0.aar" target-dir="app/src/com/vayapedal/libs" />
-         -->
+
     </platform>
 </plugin>

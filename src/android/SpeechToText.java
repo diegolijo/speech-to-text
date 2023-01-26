@@ -46,10 +46,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private Downloads downloads;
   private FileManager fileManager;
 
-  static {
-    System.loadLibrary("native_c");
-  }
-
   private String locale = "";
 
   /**
@@ -155,29 +151,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         } catch (Exception e) {
           LOG.e("execute.getAvailableLanguages", e.getMessage());
           serdError(callbackContext, "execute.getAvailableLanguages", e.getMessage());
-        }
-      });
-    } else if (action.equalsIgnoreCase("nativeCall")) {
-      cordova.getThreadPool().execute(() -> {
-        try {
-          NativeListener listener = new NativeListener(callbackContext);
-          switch (args.get(0).toString()) {
-            case "init":
-              initAudioStream(listener);
-              break;
-            case "rta":
-
-              break;
-            case "level":
-
-              break;
-            default:
-
-              break;
-          }
-        } catch (Exception e) {
-          LOG.e("execute.nativeCall", e.getMessage());
-          serdError(callbackContext, "execute.nativeCall", e.getMessage());
         }
       });
     }
@@ -387,6 +360,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
    * @param permissions  The collection of permissions
    * @param grantResults The result of grant
    */
+   // TODO no funciuona en android12
   public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                          int[] grantResults) {
     PluginResult result;
@@ -416,10 +390,5 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private void serdError(CallbackContext context, String tag, String message) {
     context.sendPluginResult(new PluginResult(PluginResult.Status.ERROR, tag + message));
   }
-
-  // ****************************** NATIVE ************************************
-  private native boolean initAudioStream(NativeListener listener);
-
-  private native boolean playSeno(Boolean enable);
 
 }

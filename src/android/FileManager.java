@@ -17,7 +17,7 @@ public class FileManager {
     put("ru", "vosk-model-small-ru-0.15");
     put("fr", "vosk-model-small-fr-0.22");
     put("de", "vosk-model-small-de-0.15");
-    put("es", "vosk-model-small-es-0.3");
+    put("es", "vosk-model-small-es-0.42");
     put("pt", "vosk-model-small-pt-0.3");
     put("tr", "vosk-model-small-tr-0.3");
     put("vn", "vosk-model-small-vn-0.3");

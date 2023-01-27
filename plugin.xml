@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.1.6">
+    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.1.10">
     <name>vosk-speech-to-text</name>
     <description>Vosk offline Speech-to-Text Cordova plugin</description>
     <license>MIT</license>
@@ -51,7 +51,8 @@
         <!--  java -->
         <source-file src="src/android/SpeechToText.java" target-dir="src/com/vayapedal/speechtotext" />
         <source-file src="src/android/Downloads.java" target-dir="src/com/vayapedal/speechtotext" />
-        <source-file src="src/android/FileManager.java" target-dir="src/com/vayapedal/speechtotext" />
+        <source-file src="src/android/FileManager.java" target-dir="src/com/vayapedal/speechtotext" />        
+        <source-file src="src/android/TTS.java" target-dir="src/com/vayapedal/speechtotext" />
 
     </platform>
 </plugin>

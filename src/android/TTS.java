@@ -41,17 +41,17 @@ public class TTS {
           @Override
           public void onStart(String utteranceId) {
             LOG.e("voices", "onStart");
-            try {
+/*            try {
               sendCallback("speech start", true);
             } catch (JSONException e) {
               e.printStackTrace();
-            }
+            }*/
           }
 
           @Override
           public void onDone(String utteranceId) {
             LOG.e("voices", "onDone");
-            if (speechToText.replay) {
+/*            if (speechToText.replay) {
               try {
                 sendCallback("speech done", false);
                 if (speechToText.replay) {
@@ -61,17 +61,17 @@ public class TTS {
               } catch (JSONException e) {
                 e.printStackTrace();
               }
-            }
+            }*/
           }
 
           @Override
           public void onError(String utteranceId) {
             LOG.e("voices", "onError");
-            try {
+ /*           try {
               sendCallback("speech error", false);
             } catch (JSONException e) {
               e.printStackTrace();
-            }
+            }*/
           }
         });
       }
@@ -93,6 +93,7 @@ public class TTS {
     tts.setVoice(v);
   }
 
+
   public JSONArray getVoices() throws JSONException {
     JSONArray arr = new JSONArray();
     for (Voice voice : tts.getVoices()) {
@@ -100,18 +101,21 @@ public class TTS {
       JSONObject obj = new JSONObject();
       obj.put("name", voice.getName());
       obj.put("locale", voice.getLocale().toLanguageTag());
+      obj.put("requiresNetwork", voice.isNetworkConnectionRequired());
+      obj.put("latency", voice.getLatency());
+      obj.put("quality", voice.getQuality());
       arr.put(obj);
     }
     return arr;
   }
 
 
-  public void speech(CallbackContext callbackSpeech, String text, SpeechToText speechToText) throws JSONException {
+  public void speech(CallbackContext callbackSpeech, String text/*, SpeechToText speechToText*/) throws JSONException {
     this.callbackSpeech = callbackSpeech;
-    if (speechToText.speechServiceIsPlaying) {
+/*    if (speechToText.speechServiceIsPlaying) {
       speechToText.stopRecognizer();
       speechToText.replay = true;
-    }
+    }*/
     tts.speak(text, TextToSpeech.QUEUE_FLUSH, b, UTTERANCE_ID); // TextToSpeech.QUEUE_FLUSH
   }
 

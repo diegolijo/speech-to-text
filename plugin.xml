@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.1.4">
+    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.1.6">
     <name>vosk-speech-to-text</name>
     <description>Vosk offline Speech-to-Text Cordova plugin</description>
     <license>MIT</license>
@@ -28,6 +28,11 @@
             <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
             <uses-permission android:name="android.permission.RECORD_AUDIO" />
             <uses-permission android:name="android.permission.VIBRATE" />
+            <queries>
+                <intent>
+                    <action android:name="android.intent.action.TTS_SERVICE" />
+                </intent>
+            </queries>
         </config-file>
 
 

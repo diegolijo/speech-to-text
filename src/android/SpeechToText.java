@@ -22,7 +22,6 @@ import org.vosk.Model;
 import org.vosk.Recognizer;
 import org.vosk.android.RecognitionListener;
 import org.vosk.android.SpeechService;
-import org.vosk.android.StorageService;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,8 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private Model model;
   private SpeechService speechService;
   private boolean speechServiceIsEnable = false;
-  private boolean speechServiceIsPlaying = false;
+  public boolean speechServiceIsPlaying = false;
+  public boolean replay = false;
   private static final float SAMPLE_RATE = 44100.0f;
 
   private final String[] permissions = {Manifest.permission.RECORD_AUDIO};
@@ -42,11 +42,14 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private CallbackContext callbackContextPlaying;
   private CallbackContext callbackContextEnabled;
   private CallbackContext callbackContextDownload;
+  private CallbackContext callbackSpeech;
 
   private Downloads downloads;
   private FileManager fileManager;
+  private TTS tts;
 
   private String locale = "";
+
 
   /**
    * Called after plugin construction and fields have been initialized.
@@ -58,6 +61,8 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     super.initialize(cordova, webView);
     downloads = new Downloads(cordova.getActivity());
     fileManager = new FileManager(cordova.getActivity());
+    tts = new TTS(cordova.getActivity(), this);
+    // TODO permisos micrófono
   }
 
   /**
@@ -153,6 +158,49 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           serdError(callbackContext, "execute.getAvailableLanguages", e.getMessage());
         }
       });
+    } else if (action.equalsIgnoreCase("speechText")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          String text = args.get(0).toString();
+          this.callbackSpeech = callbackContext;
+          this.speech(text);
+        } catch (Exception e) {
+          LOG.e("execute.speechText", e.getMessage());
+          serdError(callbackContext, "execute.speechText", e.getMessage());
+        }
+      });
+    } else if (action.equalsIgnoreCase("getSpeechVoices")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
+            tts.getVoices()));
+        } catch (Exception e) {
+          LOG.e("execute.getSpeechVoices", e.getMessage());
+          serdError(callbackContext, "execute.getSpeechVoices", e.getMessage());
+        }
+      });
+    } else if (action.equalsIgnoreCase("setSpeechVolume")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          float value = (float) args.get(0);
+          tts.setVolume(value);
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "setSpeechVolume ok"));
+        } catch (Exception e) {
+          LOG.e("execute.setSpeechVolume", e.getMessage());
+          serdError(callbackContext, "execute.setSpeechVolume", e.getMessage());
+        }
+      });
+    } else if (action.equalsIgnoreCase("setSpeechVoice")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          String name = args.get(0).toString();
+          tts.setVoice(name);
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "getSpeechVoices ok"));
+        } catch (Exception e) {
+          LOG.e("execute.setSpeechVoice", e.getMessage());
+          serdError(callbackContext, "execute.setSpeechVoice", e.getMessage());
+        }
+      });
     }
     return true;
   }
@@ -163,12 +211,26 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   @Override
   public void onPause(boolean multitasking) {
     super.onPause(multitasking);
+    if(speechServiceIsPlaying){
+      try {
+        this.stopRecognizer();
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
 
   @Override
   public void onResume(boolean multitasking) {
     super.onResume(multitasking);
+    if(speechServiceIsPlaying){
+      try {
+        this.startRecognizer();
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
 
@@ -192,7 +254,12 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     }
   }
 
-  //******************************** CONFIG SPEECH *************************************
+  // ********************************** TEXT-TO-SPEECH *********************************
+  private void speech(String text) throws JSONException {
+    tts.speech(callbackSpeech, text, this);
+  }
+
+  //******************************** CONFIG SPEECH TO TEXT *************************************
   private void enableRecognizer(String locale) {
     if (!hasPermisssion()) {
       this.locale = locale;
@@ -206,21 +273,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         serdError(this.callbackContextEnabled, "initRecognize", "No se encuentra el model en la carpeta de descargas");
       }
     }
-  }
-
-
-  private void initDefaultModel() {
-    StorageService.unpack(this.cordova.getContext(), "model-small-es", "model",
-      (model) -> {
-        this.model = model;
-        try {
-          initRecognize();
-        } catch (JSONException e) {
-          serdError(this.callbackContextEnabled, "initRecognize", e.getMessage());
-          e.printStackTrace();
-        }
-      },
-      (exception) -> LOG.e("Failed to unpack the model", exception.getMessage()));
   }
 
   private void loadModel(String locale) {
@@ -250,7 +302,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     }
   }
 
-  private void startRecognizer() throws JSONException {
+  public void startRecognizer() throws JSONException {
     if (speechService != null) {
       speechService.startListening(this);
       speechServiceIsPlaying = true;
@@ -261,7 +313,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     this.callbackContextPlaying.sendPluginResult(result);
   }
 
-  private void stopRecognizer() throws JSONException {
+  public void stopRecognizer() throws JSONException {
     if (speechService != null) {
       speechService.stop();
       speechServiceIsPlaying = false;
@@ -269,6 +321,20 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     this.callbackContextPlaying.sendPluginResult(new PluginResult(PluginResult.Status.OK,
       getJson("stop")));
   }
+
+   /*  private void initDefaultModel() {
+    StorageService.unpack(this.cordova.getContext(), "model-small-es", "model",
+      (model) -> {
+        this.model = model;
+        try {
+          initRecognize();
+        } catch (JSONException e) {
+          serdError(this.callbackContextEnabled, "initRecognize", e.getMessage());
+          e.printStackTrace();
+        }
+      },
+      (exception) -> LOG.e("Failed to unpack the model", exception.getMessage()));
+  }*/
 
   // ******************************** EVENTOS VOSK **************************************
   @Override
@@ -360,7 +426,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
    * @param permissions  The collection of permissions
    * @param grantResults The result of grant
    */
-   // TODO no funciuona en android12
+  // TODO no funciuona en android12
   public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                          int[] grantResults) {
     PluginResult result;

@@ -25,11 +25,11 @@ public class TTS {
   private static final String UTTERANCE_ID = "ID";
   private final Activity activity;
   private android.speech.tts.TextToSpeech tts;
-  private Bundle b = new Bundle();
+  private Bundle bundle = new Bundle();
   private Voice v;
   private CallbackContext callbackSpeech;
 
-  public TTS(Activity activity, SpeechToText speechToText) {
+  public TTS(Activity activity/*, SpeechToText speechToText*/) {
     this.activity = activity;
     tts = new android.speech.tts.TextToSpeech(this.activity, status -> {
       if (status != android.speech.tts.TextToSpeech.ERROR) {
@@ -37,49 +37,54 @@ public class TTS {
         this.setVolume(DEFAULT_VOLUME);
         tts.setSpeechRate(1f);
         tts.setPitch(1f);
-        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-          @Override
-          public void onStart(String utteranceId) {
-            LOG.e("voices", "onStart");
-/*            try {
-              sendCallback("speech start", true);
-            } catch (JSONException e) {
-              e.printStackTrace();
-            }*/
-          }
 
-          @Override
-          public void onDone(String utteranceId) {
-            LOG.e("voices", "onDone");
-/*            if (speechToText.replay) {
-              try {
-                sendCallback("speech done", false);
-                if (speechToText.replay) {
-                  speechToText.startRecognizer();
-                }
-                speechToText.replay = false;
-              } catch (JSONException e) {
-                e.printStackTrace();
-              }
-            }*/
-          }
-
-          @Override
-          public void onError(String utteranceId) {
-            LOG.e("voices", "onError");
- /*           try {
-              sendCallback("speech error", false);
-            } catch (JSONException e) {
-              e.printStackTrace();
-            }*/
-          }
-        });
       }
     }, "com.google.android.tts");
+    tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+      @Override
+      public void onStart(String utteranceId) {
+        LOG.e("voices", "onStart");
+        try {
+          sendCallback("speech start", true);
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+      }
+
+      @Override
+      public void onDone(String utteranceId) {
+        LOG.e("voices", "onDone");
+       // if (speechToText.replay) {
+          try {
+            sendCallback("speech done", false);
+            /*if (speechToText.replay) {
+              speechToText.startRecognizer();
+            }
+            speechToText.replay = false;*/
+          } catch (JSONException e) {
+            e.printStackTrace();
+          }
+       // }
+      }
+
+      @Override
+      public void onError(String utteranceId) {
+        LOG.e("voices", "onError");
+        try {
+          sendCallback("speech error", false);
+        } catch (JSONException e) {
+          e.printStackTrace();
+        }
+      }
+    });
   }
 
   public void setVolume(float f) {
-    b.putFloat(android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME, f);
+    bundle.putFloat(android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME, f);
+  }
+
+  public void setPitch(float f) {
+    tts.setPitch(f);
   }
 
   public void setVoice(String name) {
@@ -110,13 +115,13 @@ public class TTS {
   }
 
 
-  public void speech(CallbackContext callbackSpeech, String text/*, SpeechToText speechToText*/) throws JSONException {
+  public void speech(CallbackContext callbackSpeech, String text /*, SpeechToText speechToText*/) throws JSONException { //TODO QUEUE_FLUSH / QUEUE_ADD
     this.callbackSpeech = callbackSpeech;
 /*    if (speechToText.speechServiceIsPlaying) {
       speechToText.stopRecognizer();
       speechToText.replay = true;
     }*/
-    tts.speak(text, TextToSpeech.QUEUE_FLUSH, b, UTTERANCE_ID); // TextToSpeech.QUEUE_FLUSH
+    tts.speak(text, TextToSpeech.QUEUE_FLUSH, bundle, UTTERANCE_ID); // TextToSpeech.QUEUE_FLUSH
   }
 
   //******************************  CORDOVA COMUNICACION **************************************

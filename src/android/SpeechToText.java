@@ -61,7 +61,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     super.initialize(cordova, webView);
     downloads = new Downloads(cordova.getActivity());
     fileManager = new FileManager(cordova.getActivity());
-    tts = new TTS(cordova.getActivity(), this);
+    tts = new TTS(cordova.getActivity()/*, this*/);
     // TODO permisos micrófono
   }
 
@@ -202,6 +202,18 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         }
       });
     }
+    else if (action.equalsIgnoreCase("setSpeechPitch")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          float value = (float) args.get(0);
+          tts.setPitch(value);
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "setSpeechPitch ok"));
+        } catch (Exception e) {
+          LOG.e("execute.setSpeechPitch", e.getMessage());
+          serdError(callbackContext, "execute.setSpeechPitch", e.getMessage());
+        }
+      });
+    }
     return true;
   }
 
@@ -256,7 +268,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
   // ********************************** TEXT-TO-SPEECH *********************************
   private void speech(String text) throws JSONException {
-    tts.speech(callbackSpeech, text, this);
+    tts.speech(callbackSpeech, text/*, this*/);
   }
 
   //******************************** CONFIG SPEECH TO TEXT *************************************

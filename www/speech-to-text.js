@@ -36,6 +36,9 @@ var SpeechToText = {
   setSpeechVolume: function (cb, error, value) {
     exec(cb, error, PLUGIN_NAME, 'setSpeechVolume', [value]);
   },
+  setSpeechPitch: function (cb, error, value) {
+    exec(cb, error, PLUGIN_NAME, 'setSpeechPitch', [value]);
+  },
   setSpeechVoice: function (cb, error, value) {
     exec(cb, error, PLUGIN_NAME, 'setSpeechVoice', [value]);
   }

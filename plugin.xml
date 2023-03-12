@@ -41,7 +41,9 @@
          <source-file src="src/android/libs/vosk-android-0.3.32.aar" target-dir="app/src/com/vayapedal/libs"/>
          <source-file src="src/android/libs/jna-5.8.0.aar" target-dir="app/src/com/vayapedal/libs" />
          -->
-        <!-- Librerias remotas, no es necesario declararlas en el gradle  -->
+        <!-- Librerias remotas, no es necesario declararlas en el gradle 
+        TODO      <framework src="net.java.dev.jna:jna:5.13.0@aar" />
+                  <framework src="com.alphacephei:vosk-android:0.3.46" /> -->
         <framework src="net.java.dev.jna:jna:5.8.0@aar" />
         <framework src="com.alphacephei:vosk-android:0.3.32" />
         <framework src="androidx.preference:preference:1.1.0" />

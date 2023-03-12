@@ -223,13 +223,13 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   @Override
   public void onPause(boolean multitasking) {
     super.onPause(multitasking);
-    if(speechServiceIsPlaying){
-      try {
-        this.stopRecognizer();
-      } catch (JSONException e) {
+    try {
+      if(speechServiceIsPlaying && speechService != null) {
+          speechService.stop();
+        }
+      } catch (Exception e) {
         e.printStackTrace();
       }
-    }
   }
 
 
@@ -273,8 +273,8 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
   //******************************** CONFIG SPEECH TO TEXT *************************************
   private void enableRecognizer(String locale) {
+    this.locale = locale;
     if (!hasPermisssion()) {
-      this.locale = locale;
       requestPermissions(PERMISSIONS_REQUEST_RECORD_AUDIO);
     } else {
       File f = fileManager.getModelDirectory(FileManager.MODEL_PATHS.get(locale));

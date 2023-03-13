@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.util.Locale;
 
 public class TTS {
+
   private static final String DEFAULT_VOICE = "es-us-x-esf-network";
   private final float DEFAULT_VOLUME = 1f;
   private static final String UTTERANCE_ID = "ID";
@@ -27,7 +28,7 @@ public class TTS {
   private android.speech.tts.TextToSpeech tts;
   private Bundle bundle = new Bundle();
   private Voice v;
-  private CallbackContext callbackSpeech;
+  private CallbackContext callbackSynthesizer;
 
   public TTS(Activity activity/*, SpeechToText speechToText*/) {
     this.activity = activity;
@@ -54,13 +55,8 @@ public class TTS {
       @Override
       public void onDone(String utteranceId) {
         LOG.e("voices", "onDone");
-       // if (speechToText.replay) {
           try {
             sendCallback("speech done", false);
-            /*if (speechToText.replay) {
-              speechToText.startRecognizer();
-            }
-            speechToText.replay = false;*/
           } catch (JSONException e) {
             e.printStackTrace();
           }
@@ -98,7 +94,6 @@ public class TTS {
     tts.setVoice(v);
   }
 
-
   public JSONArray getVoices() throws JSONException {
     JSONArray arr = new JSONArray();
     for (Voice voice : tts.getVoices()) {
@@ -114,18 +109,12 @@ public class TTS {
     return arr;
   }
 
-
-  public void speech(CallbackContext callbackSpeech, String text /*, SpeechToText speechToText*/) throws JSONException { //TODO QUEUE_FLUSH / QUEUE_ADD
-    this.callbackSpeech = callbackSpeech;
-/*    if (speechToText.speechServiceIsPlaying) {
-      speechToText.stopRecognizer();
-      speechToText.replay = true;
-    }*/
-    tts.speak(text, TextToSpeech.QUEUE_FLUSH, bundle, UTTERANCE_ID); // TextToSpeech.QUEUE_FLUSH
+  public void speech(CallbackContext callback, String text, boolean flush) throws JSONException {
+    this.callbackSynthesizer = callback;
+    tts.speak(text, flush? TextToSpeech.QUEUE_FLUSH: TextToSpeech.QUEUE_ADD, bundle, UTTERANCE_ID);
   }
 
   //******************************  CORDOVA COMUNICACION **************************************
-
   private void sendCallback(
     String result,
     boolean keepCallback
@@ -135,7 +124,7 @@ public class TTS {
       getJson(result)
     );
     res.setKeepCallback(keepCallback);
-    callbackSpeech.sendPluginResult(res);
+    callbackSynthesizer.sendPluginResult(res);
   }
 
   @NonNull

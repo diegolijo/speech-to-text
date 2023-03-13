@@ -27,8 +27,8 @@ var SpeechToText = {
   getAvailableLanguages: function (cb, error) {
     exec(cb, error, PLUGIN_NAME, 'getAvailableLanguages', []);
   },
-  speechText: function (cb, error, value) {
-    exec(cb, error, PLUGIN_NAME, 'speechText', [value]);
+  speechText: function (cb, error, value, flush) {
+    exec(cb, error, PLUGIN_NAME, 'speechText', [value, flush]);
   },
   getSpeechVoices: function (cb, error) {
     exec(cb, error, PLUGIN_NAME, 'getSpeechVoices', []);

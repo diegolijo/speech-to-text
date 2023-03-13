@@ -42,7 +42,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private CallbackContext callbackContextPlaying;
   private CallbackContext callbackContextEnabled;
   private CallbackContext callbackContextDownload;
-  private CallbackContext callbackSpeech;
+  private CallbackContext callbackSynthesizer;
 
   private Downloads downloads;
   private FileManager fileManager;
@@ -162,8 +162,9 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       cordova.getThreadPool().execute(() -> {
         try {
           String text = args.get(0).toString();
-          this.callbackSpeech = callbackContext;
-          this.speech(text);
+          boolean flush = (boolean) args.get(1);
+          this.callbackSynthesizer = callbackContext;
+          this.speech(text, flush);
         } catch (Exception e) {
           LOG.e("execute.speechText", e.getMessage());
           serdError(callbackContext, "execute.speechText", e.getMessage());
@@ -201,8 +202,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           serdError(callbackContext, "execute.setSpeechVoice", e.getMessage());
         }
       });
-    }
-    else if (action.equalsIgnoreCase("setSpeechPitch")) {
+    } else if (action.equalsIgnoreCase("setSpeechPitch")) {
       cordova.getThreadPool().execute(() -> {
         try {
           float value = (float) args.get(0);
@@ -236,7 +236,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   @Override
   public void onResume(boolean multitasking) {
     super.onResume(multitasking);
-    if(speechServiceIsPlaying){
+    if (speechServiceIsPlaying) {
       try {
         this.startRecognizer();
       } catch (JSONException e) {
@@ -267,8 +267,8 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   }
 
   // ********************************** TEXT-TO-SPEECH *********************************
-  private void speech(String text) throws JSONException {
-    tts.speech(callbackSpeech, text/*, this*/);
+  private void speech(String text, boolean flush) throws JSONException {
+    tts.speech(callbackSynthesizer, text, flush);
   }
 
   //******************************** CONFIG SPEECH TO TEXT *************************************

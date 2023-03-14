@@ -224,12 +224,12 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   public void onPause(boolean multitasking) {
     super.onPause(multitasking);
     try {
-      if(speechServiceIsPlaying && speechService != null) {
-          speechService.stop();
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
+      if (speechServiceIsPlaying && speechService != null) {
+        speechService.stop();
       }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -319,10 +319,13 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       speechService.startListening(this);
       speechServiceIsPlaying = true;
     }
-    PluginResult result = new PluginResult(PluginResult.Status.OK,
-      getJson("play"));
-    result.setKeepCallback(true);
-    this.callbackContextPlaying.sendPluginResult(result);
+    try {
+      PluginResult result = new PluginResult(PluginResult.Status.OK, getJson("play"));
+      result.setKeepCallback(true);
+      this.callbackContextPlaying.sendPluginResult(result);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
   }
 
   public void stopRecognizer() throws JSONException {
@@ -330,8 +333,13 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       speechService.stop();
       speechServiceIsPlaying = false;
     }
-    this.callbackContextPlaying.sendPluginResult(new PluginResult(PluginResult.Status.OK,
-      getJson("stop")));
+    try {
+      PluginResult result = new PluginResult(PluginResult.Status.OK, getJson("stop"));
+      result.setKeepCallback(true);
+      this.callbackContextPlaying.sendPluginResult(result);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
   }
 
    /*  private void initDefaultModel() {
@@ -355,6 +363,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       JSONObject jsonObject = new JSONObject(hypothesis);
       String parcial = jsonObject.get("partial").toString();
       if (!parcial.equalsIgnoreCase("")) {
+        LOG.i("onPartialResult", hypothesis);
         JSONObject obj = new JSONObject().put("parcial", parcial);
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
@@ -364,7 +373,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       serdError(this.callbackContextPlaying, "onPartialResult", e.getMessage());
       e.printStackTrace();
     }
-    LOG.i("onPartialResult", hypothesis);
+
   }
 
   @Override
@@ -373,6 +382,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       JSONObject jsonObject = new JSONObject(hypothesis);
       String texto = jsonObject.get("text").toString();
       if (!texto.equalsIgnoreCase("")) {
+        LOG.i("onResult", hypothesis);
         JSONObject obj = new JSONObject().put("texto", texto);
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
@@ -382,7 +392,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       serdError(this.callbackContextPlaying, "onResult", e.getMessage());
       e.printStackTrace();
     }
-    LOG.i("onResult", hypothesis);
   }
 
   @Override

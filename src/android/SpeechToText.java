@@ -47,6 +47,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private Downloads downloads;
   private FileManager fileManager;
   private TTS tts;
+  private AudioPlayer audio;
 
   private String locale = "";
 
@@ -62,6 +63,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     downloads = new Downloads(cordova.getActivity());
     fileManager = new FileManager(cordova.getActivity());
     tts = new TTS(cordova.getActivity()/*, this*/);
+    audio = new AudioPlayer(cordova.getContext());
     // TODO permisos micrófono
   }
 
@@ -90,6 +92,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     } else if (action.equalsIgnoreCase("start")) {
       cordova.getThreadPool().execute(() -> {
         try {
+          audio.play();
           this.callbackContextPlaying = callbackContext;
           startRecognizer();
         } catch (Exception e) {
@@ -329,16 +332,14 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   }
 
   public void stopRecognizer() throws JSONException {
+    if (!this.speechServiceIsPlaying) {
+      PluginResult result = new PluginResult(PluginResult.Status.OK, getJson("stop"));
+      this.callbackContextPlaying.sendPluginResult(result);
+    }
+
     if (speechService != null) {
       speechService.stop();
       speechServiceIsPlaying = false;
-    }
-    try {
-      PluginResult result = new PluginResult(PluginResult.Status.OK, getJson("stop"));
-      result.setKeepCallback(true);
-      this.callbackContextPlaying.sendPluginResult(result);
-    } catch (JSONException e) {
-      e.printStackTrace();
     }
   }
 
@@ -402,7 +403,13 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
   @Override
   public void onFinalResult(String hypothesis) {
-    LOG.i("onFinalResult", hypothesis);
+    try {
+      PluginResult result = new PluginResult(PluginResult.Status.OK, getJson("stop"));
+      this.callbackContextPlaying.sendPluginResult(result);
+      audio.play();
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override

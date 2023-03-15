@@ -1,6 +1,6 @@
 {
   "name": "vosk-speech-to-text",
-  "version": "1.1.15",
+  "version": "1.1.16",
   "repository": {
     "type": "git",
     "url": "https://github.com/diegolijo/speech-to-text.git"

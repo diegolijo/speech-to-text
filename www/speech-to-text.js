@@ -33,14 +33,17 @@ var SpeechToText = {
   getSpeechVoices: function (cb, error) {
     exec(cb, error, PLUGIN_NAME, 'getSpeechVoices', []);
   },
+  setSpeechVoice: function (cb, error, value) {
+    exec(cb, error, PLUGIN_NAME, 'setSpeechVoice', [value]);
+  },
   setSpeechVolume: function (cb, error, value) {
     exec(cb, error, PLUGIN_NAME, 'setSpeechVolume', [value]);
   },
   setSpeechPitch: function (cb, error, value) {
     exec(cb, error, PLUGIN_NAME, 'setSpeechPitch', [value]);
   },
-  setSpeechVoice: function (cb, error, value) {
-    exec(cb, error, PLUGIN_NAME, 'setSpeechVoice', [value]);
+  playSound: function (cb, error, path, volume) {
+    exec(cb, error, PLUGIN_NAME, 'playSound', [path, volume]);
   }
 };
 module.exports = SpeechToText;

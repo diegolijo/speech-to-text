@@ -50,6 +50,8 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private AudioPlayer audio;
 
   private String locale = "";
+  private String soundPath;
+  private float playVolume;
 
 
   /**
@@ -92,7 +94,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     } else if (action.equalsIgnoreCase("start")) {
       cordova.getThreadPool().execute(() -> {
         try {
-          audio.play();
           this.callbackContextPlaying = callbackContext;
           startRecognizer();
         } catch (Exception e) {
@@ -113,8 +114,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     } else if (action.equalsIgnoreCase("isEnable")) {
       cordova.getThreadPool().execute(() -> {
         try {
-          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK,
-            this.speechServiceIsEnable));
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, this.speechServiceIsEnable));
         } catch (Exception e) {
           LOG.e("execute.isEnable", e.getMessage());
           serdError(callbackContext, "execute.isEnable", e.getMessage());
@@ -186,7 +186,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     } else if (action.equalsIgnoreCase("setSpeechVolume")) {
       cordova.getThreadPool().execute(() -> {
         try {
-          float value = (float) args.get(0);
+          float value = Float.parseFloat(args.get(0).toString());
           tts.setVolume(value);
           callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "setSpeechVolume ok"));
         } catch (Exception e) {
@@ -208,9 +208,21 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     } else if (action.equalsIgnoreCase("setSpeechPitch")) {
       cordova.getThreadPool().execute(() -> {
         try {
-          float value = (float) args.get(0);
+          float value = Float.parseFloat(args.get(0).toString());
           tts.setPitch(value);
           callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "setSpeechPitch ok"));
+        } catch (Exception e) {
+          LOG.e("execute.setSpeechPitch", e.getMessage());
+          serdError(callbackContext, "execute.setSpeechPitch", e.getMessage());
+        }
+      });
+    } else if (action.equalsIgnoreCase("playSound")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          soundPath = args.get(0).toString();
+          playVolume = Float.parseFloat(args.get(1).toString());
+          audio.play(soundPath, playVolume);
+          callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, "playSound ok"));
         } catch (Exception e) {
           LOG.e("execute.setSpeechPitch", e.getMessage());
           serdError(callbackContext, "execute.setSpeechPitch", e.getMessage());
@@ -406,7 +418,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     try {
       PluginResult result = new PluginResult(PluginResult.Status.OK, getJson("stop"));
       this.callbackContextPlaying.sendPluginResult(result);
-      audio.play();
+      audio.play(soundPath, playVolume);
     } catch (JSONException e) {
       e.printStackTrace();
     }

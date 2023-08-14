@@ -10,7 +10,6 @@ import java.util.Objects;
 public class AudioPlayer {
 
   private static final String ASSETS_PATH = "www/assets/";
-  private static final String DEFAULT_FILE = "sounds/ringtones-knightrider.mp3";
   private final Context context;
   private MediaPlayer m;
 
@@ -28,8 +27,12 @@ public class AudioPlayer {
         return;
       }
 
+      if(path = null || "".equals(path)){
+        return;
+      }
+
       m = new MediaPlayer();
-      AssetFileDescriptor descriptor = context.getAssets().openFd(ASSETS_PATH + (!"".equals(path) ? path : DEFAULT_FILE));
+      AssetFileDescriptor descriptor = context.getAssets().openFd(ASSETS_PATH + path);
       m.setDataSource(descriptor.getFileDescriptor(), descriptor.getStartOffset(), descriptor.getLength());
       descriptor.close();
 
@@ -43,6 +46,6 @@ public class AudioPlayer {
       m = null;
       Log.e("*** error audio play: ", e.getMessage());
     }
-
   }
+  
 }

@@ -27,7 +27,7 @@ public class AudioPlayer {
         return;
       }
 
-      if(path = null || "".equals(path)){
+      if(path == null || "".equals(path)){
         return;
       }
 

@@ -5,6 +5,6 @@ allprojects {
 }
 
 dependencies {
-    compile files('/src/com/vayapedal/libs/jna-5.8.0.aar')
-    compile files('/src/com/vayapedal/libs/vosk-android-0.3.32.aar')
+    compile files('/src/com/vayapedal/libs/jna-5.13.0.aar')
+    compile files('/src/com/vayapedal/libs/vosk-android-0.3.47.aar')
     }

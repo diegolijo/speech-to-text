@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-    xmlns:android="http://schemas.android.com/apk/res/android" id="vosk-speech-to-text" version="1.0.0">
+<plugin
+    xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="vosk-speech-to-text"
+    version="1.1.28">
     <name>vosk-speech-to-text</name>
     <description>Vosk offline Speech-to-Text Cordova plugin</description>
     <license>MIT</license>
@@ -13,7 +16,6 @@
     <platform name="android">
 
         <js-module src="www/speech-to-text.js" name="SpeechToText">
-            <runs/>
             <clobbers target="cordova.plugins.SpeechToText" />
         </js-module>
 
@@ -35,15 +37,15 @@
             </queries>
         </config-file>
 
-
         <!-- para importar las librerias descargadas en src\android\libs:            
          <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
-         <source-file src="src/android/libs/vosk-android-0.3.32.aar" target-dir="app/src/com/vayapedal/libs"/>
+         <source-file src="src/android/libs/vosk-android-0.3.32.aar"
+        target-dir="app/src/com/vayapedal/libs"/>
          <source-file src="src/android/libs/jna-5.8.0.aar" target-dir="app/src/com/vayapedal/libs" />
          -->
         <!-- Librerias remotas, no es necesario declararlas en el gradle 
-        TODO      <framework src="net.java.dev.jna:jna:5.13.0@aar" />
-                  <framework src="com.alphacephei:vosk-android:0.3.46" /> -->
+        TODO <framework src="net.java.dev.jna:jna:5.13.0@aar" />
+             <framework src="com.alphacephei:vosk-android:0.3.46" /> -->
         <framework src="net.java.dev.jna:jna:5.8.0@aar" />
         <framework src="com.alphacephei:vosk-android:0.3.32" />
         <framework src="androidx.preference:preference:1.1.0" />

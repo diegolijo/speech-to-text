@@ -297,7 +297,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
         loadModel(locale);
       } else {
         //initDefaultModel();
-        serdError(this.callbackContextEnabled, "initRecognize", "No se encuentra el model en la carpeta de descargas");
+        serdError(this.callbackContextEnabled, "initRecognize", "No se encuentra el modelo en la carpeta de descargas");
       }
     }
   }
@@ -306,7 +306,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     try {
       this.model = new Model(fileManager.loadModelDirectory(locale).getAbsolutePath());
       initRecognize();
-    } catch (JSONException e) {
+    } catch (JSONException | IOException e) {
       serdError(this.callbackContextEnabled, "initRecognize", e.getMessage());
       e.printStackTrace();
     }
@@ -429,7 +429,6 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     LOG.i("vosk", "onTimeout");
   }
 
-
   // *********************************** DOWNLOADS ****************************************
   private void donwnload(String locale) throws JSONException {
     downloads.download(callbackContextDownload, locale, true);
@@ -466,7 +465,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
    * @param permissions  The collection of permissions
    * @param grantResults The result of grant
    */
-  // TODO no funciuona en android12
+  // TODO no funciona en android12+
   public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                          int[] grantResults) {
     PluginResult result;

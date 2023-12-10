@@ -61,7 +61,7 @@ This method plays a sound file at the specified assets path at the specified vol
  ```typescript 
 declare const cordova: any;
 ...
-const recognizerSubject = new Subject<any>();
+const recognizerSubject = new Subject<{text?: string; partial?: string;}>();
 ...
 cordova.plugins.SpeechToText.enable(function(response){
   console.log(response);

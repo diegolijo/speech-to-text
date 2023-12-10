@@ -1,6 +1,14 @@
 # cordova-plugin-offline-speech
 
-cordova-offile-speech is a Cordova plugin for speech functionality.
+cordova-pludin-offile-speech is a Cordova plugin for speech functionality.
+
+This library is built using the VOSK Offline Speech Recognition API. For a deeper understanding of how the underlying speech recognition functionality operates, we recommend referring to the official documentation provided by VOSK.
+
+- VOSK Offline Speech Recognition API Documentation: [https://alphacephei.com/vosk/](https://alphacephei.com/vosk/)
+
+Please visit the above link to explore the VOSK documentation and gain insights into the features and capabilities it offers.
+
+For any issues or inquiries related specifically to the VOSK Offline Speech Recognition API, we recommend reaching out to the VOSK community and support channels as outlined in their documentation.
 
 **Note : This library is only compatible with the native Android platform.**
 

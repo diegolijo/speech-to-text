@@ -1,4 +1,10 @@
-# vosk-speech-to-text
-Speech-to-Text offline Cordova plugin
-## install
-- cordova plugins add vosk-speech-to-text
+# Atención: Paquete Obsoleto
+
+`vosk-speech-to-text`, ha sido marcado como obsoleto y ha sido trasladado a [`cordova-offline-speech`](https://www.npmjs.com/package/cordova-offline-speech).
+
+## Instalación
+
+Para migrar a la nueva solución:
+
+```bash
+cordova plugin add cordova-offline-speech

@@ -375,10 +375,10 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   public void onPartialResult(String hypothesis) {
     try {
       JSONObject jsonObject = new JSONObject(hypothesis);
-      String parcial = jsonObject.get("partial").toString();
-      if (!parcial.equalsIgnoreCase("")) {
+      String partial = jsonObject.get("partial").toString();
+      if (!partial.equalsIgnoreCase("")) {
         LOG.i("onPartialResult", hypothesis);
-        JSONObject obj = new JSONObject().put("parcial", parcial);
+        JSONObject obj = new JSONObject().put("partial", partial);
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
         this.callbackContextPlaying.sendPluginResult(result);
@@ -394,10 +394,10 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   public void onResult(String hypothesis) {
     try {
       JSONObject jsonObject = new JSONObject(hypothesis);
-      String texto = jsonObject.get("text").toString();
-      if (!texto.equalsIgnoreCase("")) {
+      String text = jsonObject.get("text").toString();
+      if (!text.equalsIgnoreCase("")) {
         LOG.i("onResult", hypothesis);
-        JSONObject obj = new JSONObject().put("texto", texto);
+        JSONObject obj = new JSONObject().put("text", text);
         PluginResult result = new PluginResult(PluginResult.Status.OK, obj);
         result.setKeepCallback(true);
         this.callbackContextPlaying.sendPluginResult(result);

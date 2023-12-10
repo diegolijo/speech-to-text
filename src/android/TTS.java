@@ -45,11 +45,6 @@ public class TTS {
       @Override
       public void onStart(String utteranceId) {
         LOG.e("voices", "onStart");
-        try {
-          sendCallback("speech start", true);
-        } catch (JSONException e) {
-          e.printStackTrace();
-        }
       }
 
       @Override
@@ -60,7 +55,6 @@ public class TTS {
           } catch (JSONException e) {
             e.printStackTrace();
           }
-       // }
       }
 
       @Override

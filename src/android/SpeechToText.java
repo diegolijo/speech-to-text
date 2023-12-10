@@ -432,7 +432,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
 
   // *********************************** DOWNLOADS ****************************************
   private void donwnload(String locale) throws JSONException {
-    downloads.download(callbackContextDownload, locale, true);
+    downloads.download(callbackContextDownload, locale);
   }
 
   // *********************************** PESMISOS *****************************************

@@ -9,12 +9,15 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
 import org.json.JSONException;
@@ -67,8 +71,7 @@ public class Downloads {
 
   public void download(
     CallbackContext callbackContextDownload,
-    String locale,
-    final boolean manual
+    String locale
   ) throws JSONException {
     Log.d("download -> ", "***************** Init ****************");
     this.callbackContextDownload = callbackContextDownload;
@@ -77,23 +80,16 @@ public class Downloads {
       Context.DOWNLOAD_SERVICE
     );
     if (currentDownloadId == null) {
-      if (manual) { // manual download
-        try {
-          sendCallback(callbackContextDownload, "start", true);
-          startDownloadingModel(
-            downloadManager,
-            locale,
-            callbackContextDownload
-          );
-        } catch (Exception e) {
-          e.printStackTrace();
-          sendCallback(callbackContextDownload, "error descarga", false);
-        }
-      } else {
-        // loading the model would require downloading it, but the user didn't
-        // explicitly tell the voice recognizer to download files, so notify them
-        // that a download is required
-        // todo onRequiresDownload();
+      try {
+        sendCallback(callbackContextDownload, "start", true);
+        startDownloadingModel(
+          downloadManager,
+          locale,
+          callbackContextDownload
+        );
+      } catch (Exception e) {
+        e.printStackTrace();
+        sendCallback(callbackContextDownload, "error descarga", false);
       }
     } else {
       Log.e(
@@ -168,7 +164,7 @@ public class Downloads {
 
             if (
               downloadManager.getMimeTypeForDownloadedFile(currentDownloadId) ==
-              null
+                null
             ) {
               try {
                 sendCallback(

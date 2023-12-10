@@ -2,9 +2,9 @@
 <plugin
     xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="cordova-offline-speech"
+    id="cordova-plugin-offline-speech"
     version="0.0.0">
-    <name>cordova-offline-speech</name>
+    <name>cordova-plugin-offline-speech</name>
     <description>Vosk offline Speech-to-Text Cordova plugin</description>
     <license>MIT</license>
     <keywords>speech to text, Vosk</keywords>
@@ -15,7 +15,7 @@
     <!-- android -->
     <platform name="android">
 
-        <js-module src="www/speech-to-text.js" name="SpeechToText">
+        <js-module src="www/cordova-plugin-offline-speech.js" name="SpeechToText">
             <clobbers target="cordova.plugins.SpeechToText" />
         </js-module>
 

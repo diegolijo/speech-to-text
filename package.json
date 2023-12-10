@@ -1,5 +1,5 @@
 {
-  "name": "cordova-offline-speech",
+  "name": "cordova-plugin-offline-speech",
   "version": "0.0.1",
   "repository": {
     "type": "git",

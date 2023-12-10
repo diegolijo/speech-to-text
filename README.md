@@ -1,4 +1,4 @@
-# cordova-offline-speech
+# cordova-plugin-offline-speech
 
 cordova-offile-speech is a Cordova plugin for speech functionality.
 

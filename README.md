@@ -1,66 +1,94 @@
 # cordova-offline-speech
 
-cordova-offile-speech is a Cordova npm package for text to speech functionality.
+cordova-offile-speech is a Cordova plugin for speech functionality.
 
 **Note : This library is only compatible with the native Android platform.**
 
 ## install
-- cordova plugins add vosk-speech-to-text
+```bash
+cordova plugins add vosk-speech-to-text
+```
 
 ## text-to-speech Methods
 
-enable(cb, error, locale)
+enable(cb:Function, error:Function, locale:string)
 This method enables the text to speech functionality.
 
-start(cb, error)
+start(cb:Function, error:Function)
 This method starts the text to speech engine.
 
-stop(cb, error)
+stop(cb:Function, error:Function)
 This method stops the text to speech engine.
 
-isEnable(cb, error)
+isEnable(cb:Function, error:Function)
 This method checks if the text to speech functionality is enabled.
 
-isPlaying(cb, error)
+isPlaying(cb:Function, error:Function)
 This method checks if the text to speech engine is playing.
 
-download(cb, error, locale)
+download(cb:Function, erro:Function, locale:string)
 This method downloads the necessary text to speech language model for specified locale.
 
-getDownloadedLanguages(cb, error)
+getDownloadedLanguages(cb:Function, error:Function)
 This method gets the list of downloaded languages for text to speech.
 
-getAvailableLanguages(cb, error)
+getAvailableLanguages(cb:Function, error:Function)
 This method gets the list of available languages for text to speech that can be downloaded.
 
 ## speech-to-text Methods
 
-speechText(cb, error, value, flush)
+speechText(cb:Function, error:Function, value:string, flush)
 This method converts the value text to speech.
 
-getSpeechVoices(cb, error)
+getSpeechVoices(cb:Function, error:Function)
 This method gets the list of available text to speech voices.
 
-setSpeechVoice(cb, error, value)
+setSpeechVoice(cb:Function, error:Function, value:string)
 This method sets the voice for text to speech.
 
-setSpeechVolume(cb, error, value)
-This method sets the volume for text to speech.
+setSpeechVolume(cb:Function, error:Function, value:number)
+This method sets the volume for text to speech (a number between 0 and 1).
 
-setSpeechPitch(cb, error, value)
-This method sets the pitch for text to speech.
+setSpeechPitch(cb:Function, error:Function, value:number)
+This method sets the pitch for text to speech. 1.0 is the normal pitch, lower values lower the tone of the synthesized voice, greater values increase it.
 
 ## audio Methods
 
-playSound(cb, error, path, volume)
-This method plays a sound file at the specified assets path at the specified volume.
+playSound(cb:Function, error:Function, path:string, volume:number)
+This method plays a sound file at the specified assets path at the specified volume (a number between 0 and 1).
 
-## usage
+## example
  ```typescript 
-    declare const cordova: any;
-    cordova.plugins.SpeechToText.enable((value: any) => {
-      console.log(value);
-    }, (err: any) => {
-      console.log(err);
-    }, locale);
+declare const cordova: any;
+...
+const recognizerSubject = new Subject<any>();
+...
+cordova.plugins.SpeechToText.enable(function(response){
+  console.log(response);
+}, function(error){
+  console.log(error);
+}, 'en-US');
+...
+// Checking if enabled
+cordova.plugins.SpeechToText.isEnable(function(response){
+  console.log(response);
+}, function(error){
+  console.log(error);
+});
+...
+// Starting text-to-speech
+cordova.plugins.SpeechToText.start(function(response){
+  recognizerSubject.next(value);
+  console.log(response);
+}, function(error){
+  console.log(error);
+});
+...
+// Speaking text
+cordova.plugins.SpeechToText.speechText(function(response){
+  console.log(response);
+}, function(error){
+  console.log(error);
+}, 'Hello, world!', true);
+...
 ```

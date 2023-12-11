@@ -307,7 +307,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
       String path = fileManager.loadModelDirectory(locale).getAbsolutePath();
       this.model = new Model(path);
       initRecognize();
-    } catch (JSONException e) {
+    } catch (JSONException | IOException e) {
       serdError(this.callbackContextEnabled, "initRecognize", e.getMessage());
       e.printStackTrace();
     }

@@ -345,14 +345,13 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   }
 
   public void stopRecognizer() throws JSONException {
+      if (speechService != null) {
+      speechService.stop();
+      speechServiceIsPlaying = false;
+    }
     if (!this.speechServiceIsPlaying) {
       PluginResult result = new PluginResult(PluginResult.Status.OK, getJson("stop"));
       this.callbackContextPlaying.sendPluginResult(result);
-    }
-
-    if (speechService != null) {
-      speechService.stop();
-      speechServiceIsPlaying = false;
     }
   }
 

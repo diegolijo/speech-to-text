@@ -46,12 +46,15 @@
         <!-- Librerias remotas, no es necesario declararlas en el gradle 
         TODO <framework src="net.java.dev.jna:jna:5.13.0@aar" />
              <framework src="com.alphacephei:vosk-android:0.3.46" /> -->
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+
         <framework src="net.java.dev.jna:jna:5.13.0@aar" />
         <framework src="com.alphacephei:vosk-android:0.3.47" />
         <framework src="androidx.preference:preference:1.1.0" />
         <framework src="io.reactivex.rxjava3:rxjava:3.0.8" />
         <framework src="io.reactivex.rxjava3:rxandroid:3.0.0" />
-
+        <!-- native c -->
+        <source-file src="src/android/cpp" target-dir="src/main" />
         <!--  java -->
         <source-file src="src/android/SpeechToText.java" target-dir="src/com/vayapedal/speechtotext" />
         <source-file src="src/android/Downloads.java" target-dir="src/com/vayapedal/speechtotext" />

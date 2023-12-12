@@ -1,0 +1,28 @@
+android {
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                // Versión de C++ a utilizar
+                arguments '-DANDROID_STL=c++_shared'
+                cppFlags '-std=c++17'
+            }
+        }
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+        }
+    }
+
+    // Configuración para el sistema de compilación externo CMake.
+    externalNativeBuild {
+        cmake {
+            // Proporciona la ubicación del archivo CMakeLists.txt.
+            path 'src/main/cpp/CMakeLists.txt'
+            // Versión de CMake requerida
+            version '3.10.2+'
+        }
+    }
+
+    buildFeatures {
+        prefab true
+    }
+}

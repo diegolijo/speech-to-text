@@ -53,6 +53,7 @@
         <framework src="androidx.preference:preference:1.1.0" />
         <framework src="io.reactivex.rxjava3:rxjava:3.0.8" />
         <framework src="io.reactivex.rxjava3:rxandroid:3.0.0" />
+        <framework src="com.google.oboe:oboe:1.8.0" />
         <!-- native c -->
         <source-file src="src/android/cpp" target-dir="src/main" />
         <!--  java -->

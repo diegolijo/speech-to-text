@@ -18,7 +18,7 @@ android {
             // Proporciona la ubicación del archivo CMakeLists.txt.
             path 'src/main/cpp/CMakeLists.txt'
             // Versión de CMake requerida
-            version '3.10.2+'
+            version '3.22.1+'
         }
     }
 

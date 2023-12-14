@@ -34,7 +34,7 @@ private:
 
             // Ten en cuenta que aquí estamos suponiendo que 'audioData' es de tipo 'float*', lo que
             // debes asegurarte que sea así configurando el formato del stream de audio adecuadamente.
-            //TODO calculateAndReportAmplitude(static_cast<float *>(audioData), numFrames, currentTime);
+            calculateAndReportAmplitude(static_cast<float *>(audioData), numFrames, currentTime);
         }
 
         return oboe::DataCallbackResult::Continue;
@@ -79,42 +79,41 @@ extern "C"
         }
         return result;
     }
+}
 
-    oboe::Result AudioEngine::stop()
+oboe::Result AudioEngine::stop()
+{
+    if (stream != nullptr)
     {
-        if (stream != nullptr)
-        {
-            return stream->stop();
-        }
-        return oboe::Result::ErrorNull;
+        return stream->stop();
+    }
+    return oboe::Result::ErrorNull;
+}
+
+void AudioEngine::setupCallback(JNIEnv *env, jobject instance)
+{
+    // Store the JVM and the instance to use in the callback
+    mEnv = env;
+    mJavaInstance = env->NewGlobalRef(instance);
+}
+
+void AudioEngine::calculateAndReportAmplitude(float *audioData, int32_t numFrames, long currentTime)
+{
+    float amplitude = 0;
+
+    // Calcula la amplitud de alguna manera. Ejemplo simple, encuentra el valor máximo
+    for (int i = 0; i < numFrames; i++)
+    {
+        amplitude = std::max(amplitude, std::abs(audioData[i]));
     }
 
-    void AudioEngine::setupCallback(JNIEnv *env, jobject instance)
+    // Usa JNI para llamar a la función Java onAmplitudeCallback
+    jclass clazz = mEnv->GetObjectClass(mJavaInstance);
+    jmethodID callbackMethod = mEnv->GetMethodID(clazz, "onAmplitudeCallback", "(F)V");
+
+    if (callbackMethod != nullptr)
     {
-        // Store the JVM and the instance to use in the callback
-        mEnv = env;
-        mJavaInstance = env->NewGlobalRef(instance);
+        mEnv->CallVoidMethod(mJavaInstance, callbackMethod, amplitude);
     }
-
-    void
-    AudioEngine::calculateAndReportAmplitude(float *audioData, int32_t numFrames, long currentTime)
-    {
-        float amplitude = 0;
-
-        // Calcula la amplitud de alguna manera. Ejemplo simple, encuentra el valor máximo
-        for (int i = 0; i < numFrames; i++)
-        {
-            amplitude = std::max(amplitude, std::abs(audioData[i]));
-        }
-
-        // Usa JNI para llamar a la función Java onAmplitudeCallback
-        jclass clazz = mEnv->GetObjectClass(mJavaInstance);
-        jmethodID callbackMethod = mEnv->GetMethodID(clazz, "onAmplitudeCallback", "(F)V");
-
-        if (callbackMethod != nullptr)
-        {
-            mEnv->CallVoidMethod(mJavaInstance, callbackMethod, amplitude);
-        }
-        mEnv->DeleteLocalRef(clazz);
-    }
+    mEnv->DeleteLocalRef(clazz);
 }

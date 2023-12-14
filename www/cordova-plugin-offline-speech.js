@@ -44,6 +44,12 @@ var SpeechToText = {
   },
   playSound: function (cb, error, path, volume) {
     exec(cb, error, PLUGIN_NAME, 'playSound', [path, volume]);
+  },
+  initAudioCapture: function (cb, error) {
+    exec(cb, error, PLUGIN_NAME, 'initAudioCapture', []);
+  },
+  stopAudioCapture: function (cb, error) {
+    exec(cb, error, PLUGIN_NAME, 'stopAudioCapture', []);
   }
 };
 module.exports = SpeechToText;

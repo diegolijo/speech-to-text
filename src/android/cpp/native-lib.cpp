@@ -34,7 +34,7 @@ private:
 
             // Ten en cuenta que aquí estamos suponiendo que 'audioData' es de tipo 'float*', lo que
             // debes asegurarte que sea así configurando el formato del stream de audio adecuadamente.
-            calculateAndReportAmplitude(static_cast<float *>(audioData), numFrames, currentTime);
+            //TODO calculateAndReportAmplitude(static_cast<float *>(audioData), numFrames, currentTime);
         }
 
         return oboe::DataCallbackResult::Continue;
@@ -66,10 +66,10 @@ extern "C"
     oboe::Result AudioEngine::start()
     {
         oboe::AudioStreamBuilder builder;
-        builder.setDirection(oboe::Direction::Output);
+        builder.setDirection(oboe::Direction::Input);
         builder.setFormat(oboe::AudioFormat::Float); // Configura el formato de audio como Float
         builder.setPerformanceMode(oboe::PerformanceMode::LowLatency);
-        builder.setSharingMode(oboe::SharingMode::Exclusive);
+        builder.setSharingMode(oboe::SharingMode::Shared);
         // Personaliza los parámetros del stream de acuerdo a tus necesidades
         builder.setCallback(this);
         oboe::Result result = builder.openStream(&stream);

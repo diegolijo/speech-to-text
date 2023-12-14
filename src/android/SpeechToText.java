@@ -52,6 +52,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   private String locale = "";
   private String soundPath;
   private float playVolume;
+  private NativeLib nativeLib;
 
 
   /**
@@ -66,6 +67,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
     fileManager = new FileManager(cordova.getActivity());
     tts = new TTS(cordova.getActivity()/*, this*/);
     audio = new AudioPlayer(cordova.getContext());
+    nativeLib = new NativeLib();
     // TODO permisos micrófono
   }
 
@@ -228,6 +230,24 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
           serdError(callbackContext, "execute.setSpeechPitch", e.getMessage());
         }
       });
+    } else if (action.equalsIgnoreCase("initAudioCapture")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          this.nativeLib.initCapture(callbackContext);
+        } catch (Exception e) {
+          LOG.e("execute.setSpeechPitch", e.getMessage());
+          serdError(callbackContext, "execute.initAudioCapture", e.getMessage());
+        }
+      });
+    } else if (action.equalsIgnoreCase("stopAudioCapture")) {
+      cordova.getThreadPool().execute(() -> {
+        try {
+          this.nativeLib.stopCapture();
+        } catch (Exception e) {
+          LOG.e("execute.setSpeechPitch", e.getMessage());
+          serdError(callbackContext, "execute.stopAudioCapture", e.getMessage());
+        }
+      });
     }
     return true;
   }
@@ -345,7 +365,7 @@ public class SpeechToText extends CordovaPlugin implements RecognitionListener {
   }
 
   public void stopRecognizer() throws JSONException {
-      if (speechService != null) {
+    if (speechService != null) {
       speechService.stop();
       speechServiceIsPlaying = false;
     }

@@ -20,7 +20,7 @@ private:
     JavaVM *savedVM = nullptr;
 
     long nextCallbackTime = 0;     // Timestamp for next amplitude callback
-    int callbackIntervalMs = 1000; // Call Java callback every 100ms
+    int callbackIntervalMs = 1000; // Call Java callback every 1000ms
 
     oboe::DataCallbackResult
     onAudioReady(oboe::AudioStream *oboeStream, void *audioData, int32_t numFrames) override {
@@ -93,17 +93,16 @@ void
 AudioEngine::calculateAndReportAmplitude(float *audioData, int32_t numFrames, long currentTime) {
     float amplitude = 0;
 
-    // Calcula la amplitud de alguna manera. Ejemplo simple, encuentra el valor máximo
     for (int i = 0; i < numFrames; i++) {
         amplitude = std::max(amplitude, std::abs(audioData[i]));
     }
 
     JNIEnv *env;
     int stat = savedVM->GetEnv((void **) &env, JNI_VERSION_1_6);
-    if (stat == JNI_EDETACHED)  //We are on a different thread, attach
+    if (stat == JNI_EDETACHED)  // We are on a different thread, attach
         savedVM->AttachCurrentThread(reinterpret_cast<JNIEnv **>((void **) &env), nullptr);
     if (env == nullptr)
-        return;  //Cant attach to java, bail
+        return;  // Can't attach to java, bail
 
     jclass jClass = env->GetObjectClass(jObj);
     jmethodID method = env->GetMethodID(jClass, "onAmplitudeCallback", "(F)V");
@@ -113,7 +112,7 @@ AudioEngine::calculateAndReportAmplitude(float *audioData, int32_t numFrames, lo
     if (env->ExceptionCheck()) {
         env->ExceptionDescribe();
         // Manejar la excepción según tus necesidades
-        env->ExceptionClear();  // Limpiar la excepción después de manejarla
+        env->ExceptionClear();  // Limpia la excepción después de manejarla
     }
     savedVM->DetachCurrentThread();
 }

@@ -39,8 +39,7 @@ public class NativeLib {
 
   private native void detenerCapturaDeAudio();
 
-  //******************************  CORDOVA COMUNICACION **************************************
-
+  //******************************  CORDOVA COMUNICATION **************************************
   private void sendCallback(String result, String action, boolean setKeep) throws JSONException {
     PluginResult res = new PluginResult(PluginResult.Status.OK, getJson(result, action));
     res.setKeepCallback(setKeep);

@@ -17,7 +17,7 @@ For any issues or inquiries related specifically to the VOSK Offline Speech Reco
 cordova plugins add vosk-speech-to-text
 ```
 
-## text-to-speech Methods
+## speech-to-text Methods
 
 enable(cb:Function, error:Function, locale:string)
 This method enables the text to speech functionality.
@@ -43,7 +43,7 @@ This method gets the list of downloaded languages for text to speech.
 getAvailableLanguages(cb:Function, error:Function)
 This method gets the list of available languages for text to speech that can be downloaded.
 
-## speech-to-text Methods
+## text-to-speech Methods
 
 speechText(cb:Function, error:Function, value:string, flush)
 This method converts the value text to speech.

@@ -69,8 +69,6 @@ This method plays a sound file at the specified assets path at the specified vol
  ```typescript 
 declare const cordova: any;
 ...
-const recognizerSubject = new Subject<{text?: string; partial?: string;}>();
-...
 cordova.plugins.SpeechToText.enable(function(response){
   console.log(response);
 }, function(error){
@@ -86,7 +84,6 @@ cordova.plugins.SpeechToText.isEnable(function(response){
 ...
 // Starting text-to-speech
 cordova.plugins.SpeechToText.start(function(response){
-  recognizerSubject.next(value);
   console.log(response);
 }, function(error){
   console.log(error);
